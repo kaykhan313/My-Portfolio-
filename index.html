@@ -41,87 +41,23 @@
             transition: background-color 0.3s, color 0.3s; 
         }
         
-        /* Keyframe animation for the Vertical Drift (ऊपर-नीचे मूवमेंट) */
-        @keyframes verticalDrift {
-            0% { 
-                /* Start position */
-                background-position-y: 0px; 
-                transform: translateZ(0); /* Hardware acceleration */
-            }
-            100% { 
-                /* End position (move up 40px) */
-                background-position-y: 40px; 
-                transform: translateZ(0); 
-            }
-        }
-        
-        /* ----------------------------------------------------- */
-        /* 1. Base Background Layer (Subtle Grid) - ECG Monitor Look */
-        /* ----------------------------------------------------- */
-        body::before {
-            content: '';
-            position: fixed; 
+        /* The Canvas for the Coding Animation */
+        #matrix-canvas {
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: -3; /* Lowest layer */
-            
-            /* Add a subtle dark grid overlay (Monitor Grid Feel) */
-            background-image: 
-                /* Subtle Horizontal Grid Lines (Dark Gray) */
-                repeating-linear-gradient(0deg, #111 0, #111 1px, transparent 1px, transparent 20px),
-                /* Subtle Vertical Grid Lines (Dark Gray) */
-                repeating-linear-gradient(90deg, #111 0, #111 1px, transparent 1px, transparent 20px); 
-                
-            background-size: 100% 20px, 20px 100%; /* Line spacing */
-            
-            background-color: var(--bg-color); /* Dark background */
-            opacity: 0.8; 
-            animation: none; 
+            z-index: -2; /* Ensure it is behind the content but visible */
+            pointer-events: none; /* Crucial: ensures clicks pass through to the page */
+            opacity: 0.6; /* Keep it subtle so it doesn't distract from the content */
+            transition: opacity 0.5s;
         }
 
-        /* ----------------------------------------------------- */
-        /* 2. Neon Red Vertical Drift Animation Layer (ऊपर-नीचे मूविंग लाइन्स) */
-        /* ----------------------------------------------------- */
-        body::after {
-            content: '';
-            position: fixed;
-            top: 0; 
-            left: 0;
-            width: 100%;
-            height: 100%; /* Full screen cover */
-            opacity: 0.35; /* Subtlety is key */
-            z-index: -1; 
-            
-            /* Create fine horizontal lines (Scan Lines / Static) - Neon Red Tint */
-            background-image: repeating-linear-gradient(
-                0deg, 
-                rgba(255, 0, 0, 0.1), /* Thin Neon Red lines */
-                rgba(255, 0, 0, 0.1) 1px, 
-                transparent 1px, 
-                transparent 40px /* Spacing between lines */
-            );
-            
-            /* Background size controls the pattern repeat. 40px vertical repeat. */
-            background-size: 100% 40px; 
-            background-repeat: repeat;
-            
-            /* Apply vertical movement animation */
-            animation: verticalDrift 10s linear infinite; /* Slow, continuous vertical movement */
-
-            /* Add a soft glow for the neon effect */
-            filter: drop-shadow(0 0 5px rgba(255, 0, 0, 0.5));
-            pointer-events: none; /* Make sure it doesn't block clicks */
+        /* Adjust canvas opacity for light theme */
+        .light-theme #matrix-canvas {
+            opacity: 0.1; /* Very subtle in light mode */
         }
-        
-        /* Light mode Background - Keep all effects very subtle in light theme */
-        .light-theme::before, .light-theme::after {
-            opacity: 0.05; /* Reduce visibility further in light mode */
-            filter: none; /* Remove neon glow */
-            background-image: none !important; /* Hide dark grid and pulse pattern */
-        }
-
         
         /* Section Container Styles */
         .section-container {
@@ -130,6 +66,9 @@
             transition: all 0.5s ease-in-out;
             background-color: var(--section-bg); 
             box-shadow: 0 10px 20px var(--shadow-color); 
+            /* Ensure content sections have z-index higher than canvas */
+            position: relative; 
+            z-index: 10;
         }
 
         /* Hover effect to give a subtle glow */
@@ -222,6 +161,8 @@
     </style>
 </head>
 <body class="antialiased">
+    <!-- CANVAS FOR MATRIX/CODING ANIMATION -->
+    <canvas id="matrix-canvas"></canvas>
 
     <!-- 1. Header & Navigation (हैडर और नेविगेशन) -->
     <header class="sticky top-0 z-50 bg-[var(--bg-color)]/90 backdrop-blur-sm shadow-lg">
@@ -270,9 +211,9 @@
         <!-- 2. Hero Section (हीरो सेक्शन) -->
         <section id="hero" class="min-h-[80vh] flex items-center justify-center text-center scroll-reveal">
             <div>
-                <img src="kay.png" style="width: 200px; height: 250px;"
-                     alt="Profile Picture" 
-                     class="w-32 h-32 rounded-full mx-auto mb-6 border-4 border-red-500 shadow-xl ring-4 ring-red-500/50 hover:ring-8 transition duration-500 ring-pulse">
+                <img src="https://placehold.co/128x128/ef4444/ffffff?text=K"
+                    alt="Profile Picture" 
+                    class="w-32 h-32 rounded-full mx-auto mb-6 border-4 border-red-500 shadow-xl ring-4 ring-red-500/50 hover:ring-8 transition duration-500 ring-pulse">
                 
                 <h1 class="text-4xl sm:text-6xl font-extrabold mb-4 leading-tight">
                     Hi, I'm <span class="gradient-text">Kay Khan</span>
@@ -429,7 +370,7 @@
             </p>
             <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
                 <!-- Resume Download Button (इसमें JavaScript इंटरैक्शन है) -->
-                <button id="resume-download-btn" style="display: none;" class=" items-center justify-center bg-white text-red-600 font-semibold py-3 px-8 rounded-full transition duration-300 shadow-xl hover:bg-gray-200 transform hover:scale-105 relative overflow-hidden">
+                <button id="resume-download-btn" class="items-center justify-center bg-white text-red-600 font-semibold py-3 px-8 rounded-full transition duration-300 shadow-xl hover:bg-gray-200 transform hover:scale-105 relative overflow-hidden hidden">
                     <span id="download-text">
                         <i data-lucide="download" class="w-5 h-5 mr-2 inline-block"></i> Download Resume
                     </span>
@@ -540,6 +481,93 @@
         ];
 
         // -----------------------------------------------------
+        // 0. Matrix Background Effect (मैट्रिक्स बैकग्राउंड)
+        // -----------------------------------------------------
+        function MatrixEffect() {
+            const canvas = document.getElementById('matrix-canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Set canvas size and make it responsive
+            let width = canvas.width = window.innerWidth;
+            let height = canvas.height = document.documentElement.scrollHeight;
+            window.addEventListener('resize', () => {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = document.documentElement.scrollHeight;
+                columns = Math.floor(width / fontSize);
+                drops = new Array(columns).fill(1);
+            });
+
+            // Character set (combining code characters and common symbols)
+            const characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ~!@#$%^&*()_+-={}[]:";\'<>?,./|\\';
+            const fontSize = 16;
+            let columns = Math.floor(width / fontSize);
+            let drops = new Array(columns).fill(1);
+            let frameRate = 1000 / 30; // Target 30 FPS
+            let lastDrawTime = 0;
+
+            /**
+             * The main draw function for the matrix effect
+             * Uses requestAnimationFrame for performance
+             */
+            function draw(timestamp) {
+                // Throttle drawing to control animation speed
+                if (timestamp < lastDrawTime + frameRate) {
+                    requestAnimationFrame(draw);
+                    return;
+                }
+                lastDrawTime = timestamp;
+
+                // Create the trailing effect by slightly fading the background
+                ctx.fillStyle = 'rgba(13, 17, 23, 0.05)'; // var(--bg-color) with transparency
+                ctx.fillRect(0, 0, width, height);
+
+                // Styling for the text (code characters)
+                ctx.fillStyle = '#ef4444'; // Red color for code streams
+                ctx.font = `${fontSize}px monospace`;
+
+                // Draw each column stream
+                for (let i = 0; i < drops.length; i++) {
+                    const text = characters[Math.floor(Math.random() * characters.length)];
+                    const x = i * fontSize;
+                    const y = drops[i] * fontSize;
+
+                    // Draw the character
+                    ctx.fillText(text, x, y);
+
+                    // If the stream has moved past the canvas height...
+                    if (y > height && Math.random() > 0.975) {
+                        // ...reset it to the top (creates a loop)
+                        drops[i] = 0;
+                    }
+
+                    // Increment the Y coordinate for the next frame
+                    drops[i]++;
+                }
+
+                // Check for light mode and adjust color (for immediate visual feedback on toggle)
+                if (document.body.classList.contains('light-theme')) {
+                     ctx.fillStyle = 'rgba(0, 0, 0, 0.3)'; // Darker color in light mode
+                } else {
+                     ctx.fillStyle = '#ef4444'; // Red in dark mode
+                }
+
+                requestAnimationFrame(draw);
+            }
+
+            // Start the animation loop
+            draw(0);
+        }
+
+        // Initialize Matrix effect after window loads
+        window.onload = function() {
+            // Wait for all elements to load before starting animation
+            MatrixEffect(); 
+            // Also call existing initialization logic (typing, icons, etc.)
+            initAllComponents();
+        };
+
+
+        // -----------------------------------------------------
         // 1. Theme Toggle Logic (थीम बदलने का लॉजिक)
         // -----------------------------------------------------
         const themeToggleBtn = document.getElementById('theme-toggle');
@@ -567,10 +595,8 @@
 
         themeToggleBtn.addEventListener('click', toggleTheme);
         
-        // Default to dark theme on load
-        document.body.classList.remove('light-theme');
-
-
+        // Default to dark theme on load (already set in body class and initial styles)
+        
         // -----------------------------------------------------
         // 2. Testimonials Carousel Logic (टेस्टिमोनियल्स कैरोसेल)
         // -----------------------------------------------------
@@ -596,229 +622,221 @@
             currentIndex = (currentIndex - 1 + totalItems) % totalItems;
             updateCarousel();
         });
-
-        // Optional: Auto-slide every few seconds
-        setInterval(() => {
-             currentIndex = (currentIndex + 1) % totalItems;
-             updateCarousel();
-        }, 8000); // Change every 8 seconds
-
-
-        // -----------------------------------------------------
-        // 3. Skill Progress Ring Generation and Animation (कौशल रिंग)
-        // -----------------------------------------------------
-        function createSkillCardHTML(skill) {
-            return `
-                <div class="bg-[var(--card-bg)] p-4 rounded-lg text-center shadow-md card-hover-effect flex flex-col items-center justify-center border border-[var(--border-color)]" data-skill-id="${skill.id}">
-                    <div class="relative w-24 h-24 mb-3 flex items-center justify-center">
-                        <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                            <circle cx="50" cy="50" r="${radius}" fill="transparent" stroke="#1f2937" stroke-width="8"></circle>
-                            <circle 
-                                class="progress-ring__circle"
-                                data-skill-value="${skill.value}"
-                                cx="50" cy="50" r="${radius}" 
-                                fill="transparent" 
-                                stroke="${skill.color}" 
-                                stroke-width="8" 
-                                stroke-linecap="round"
-                                style="stroke-dasharray: ${circumference}; stroke-dashoffset: ${circumference};"
-                            ></circle>
-                        </svg>
-                        <span class="absolute text-xl font-bold text-[var(--text-color)]">${skill.value}%</span>
-                    </div>
-                    <p class="font-semibold text-sm mt-1 text-[var(--text-color)]">${skill.name}</p>
-                </div>
-            `;
-        }
-
-        function setProgress(element, value) {
-            const offset = circumference - (value / 100) * circumference;
-            element.style.strokeDashoffset = offset;
-        }
-
-        function initializeSkills() {
-            const skillsGrid = document.getElementById('skills-grid');
-            if (skillsGrid) {
-                skillsGrid.innerHTML = skillData.map(createSkillCardHTML).join('');
-
-                const skillObserver = new IntersectionObserver((entries, observer) => {
-                    entries.forEach(entry => {
-                        if (entry.isIntersecting) {
-                            const circles = entry.target.querySelectorAll('.progress-ring__circle');
-                            circles.forEach(circle => {
-                                const value = parseInt(circle.getAttribute('data-skill-value'));
-                                setProgress(circle, value);
-                            });
-                            observer.unobserve(entry.target);
-                        }
-                    });
-                }, { threshold: 0.5 });
-
-                const skillsSection = document.getElementById('skills');
-                if (skillsSection) {
-                    skillObserver.observe(skillsSection);
-                }
-            }
-        }
-
-
-        // -----------------------------------------------------
-        // 4. Dynamic Project Card Generation (डायनामिक प्रोजेक्ट कार्ड्स)
-        // -----------------------------------------------------
-
-        /**
-         * प्रोजेक्ट डेटा से Tailwind रंग क्लास (bg/text) प्राप्त करता है।
-         * @param {string} colorName - जैसे 'red', 'purple', 'green'
-         * @returns {object} - {bgClass, textClass}
-         */
-        function getTagClasses(colorName) {
-            switch (colorName.toLowerCase()) {
-                case 'purple': return { bgClass: 'bg-purple-600/20', textClass: 'text-purple-400' };
-                case 'red': return { bgClass: 'bg-red-600/20', textClass: 'text-red-400' };
-                case 'green': return { bgClass: 'bg-green-600/20', textClass: 'text-green-400' };
-                case 'yellow': return { bgClass: 'bg-yellow-600/20', textClass: 'text-yellow-400' };
-                case 'cyan': return { bgClass: 'bg-cyan-600/20', textClass: 'text-cyan-400' };
-                default: return { bgClass: 'bg-gray-700', textClass: 'text-gray-400' };
-            }
-        }
         
-        /**
-         * एक सिंगल प्रोजेक्ट कार्ड के लिए HTML उत्पन्न करता है।
-         * @param {object} project - एक परियोजना ऑब्जेक्ट
-         * @returns {string} - प्रोजेक्ट कार्ड का HTML स्ट्रिंग
-         */
-        function createProjectCardHTML(project) {
-            const tagsHTML = project.tags.map(tag => {
-                const { bgClass, textClass } = getTagClasses(tag.color);
-                return `<span class="${bgClass} ${textClass} text-xs font-medium px-2.5 py-0.5 rounded-full">${tag.name}</span>`;
+        // -----------------------------------------------------
+        // 3. Typing Effect (टाइपिंग इफ़ेक्ट)
+        // -----------------------------------------------------
+        const typingTextElement = document.getElementById('typing-text');
+        const phrases = ["Full Stack Developer.", "Web Architect.", "Tech Innovator.", "Coding Enthusiast."];
+        let phraseIndex = 0;
+        let charIndex = 0;
+        let isDeleting = false;
+
+        function type() {
+            const currentPhrase = phrases[phraseIndex];
+            
+            if (isDeleting) {
+                // Delete mode
+                typingTextElement.textContent = currentPhrase.substring(0, charIndex - 1);
+                charIndex--;
+            } else {
+                // Typing mode
+                typingTextElement.textContent = currentPhrase.substring(0, charIndex + 1);
+                charIndex++;
+            }
+
+            let typeSpeed = isDeleting ? 50 : 150; // Fast deletion, slower typing
+
+            if (!isDeleting && charIndex === currentPhrase.length) {
+                // Finished typing, start deleting after a pause
+                typeSpeed = 2000;
+                isDeleting = true;
+            } else if (isDeleting && charIndex === 0) {
+                // Finished deleting, move to next phrase
+                isDeleting = false;
+                phraseIndex = (phraseIndex + 1) % phrases.length;
+                typeSpeed = 500; // Pause before new phrase starts
+            }
+
+            setTimeout(type, typeSpeed);
+        }
+
+        // -----------------------------------------------------
+        // 4. Project Card Generation (प्रोजेक्ट कार्ड बनाना)
+        // -----------------------------------------------------
+        const projectsContainer = document.getElementById('projects-container');
+
+        function generateProjectCard(project) {
+            const tagHtml = project.tags.map(tag => {
+                let colorClass = '';
+                switch (tag.color) {
+                    case 'purple': colorClass = 'bg-purple-600/20 text-purple-400'; break;
+                    case 'red': colorClass = 'bg-red-600/20 text-red-400'; break;
+                    case 'green': colorClass = 'bg-green-600/20 text-green-400'; break;
+                    case 'yellow': colorClass = 'bg-yellow-600/20 text-yellow-400'; break;
+                    case 'cyan': colorClass = 'bg-cyan-600/20 text-cyan-400'; break;
+                }
+                return `<span class="${colorClass} text-xs font-medium px-2.5 py-0.5 rounded-full">${tag.name}</span>`;
             }).join('');
 
             return `
-                <div class="bg-[var(--card-bg)] p-6 rounded-xl shadow-xl border border-[var(--border-color)] card-hover-effect">
-                    <h3 class="text-2xl font-semibold text-red-400 mb-2">${project.title}</h3>
+                <div class="card-hover-effect bg-[var(--card-bg)] p-8 rounded-xl shadow-lg border border-[var(--border-color)] scroll-reveal">
+                    <div class="flex items-center space-x-4 mb-4">
+                        <i data-lucide="code" class="w-8 h-8 text-red-500"></i>
+                        <h3 class="text-2xl font-semibold text-white">${project.title}</h3>
+                    </div>
                     <p class="text-gray-400 mb-4">${project.description}</p>
-                    <div class="mt-3 flex flex-wrap gap-2 mb-4">${tagsHTML}</div>
-                    <div class="mt-4 flex space-x-4">
-                        <a href="${project.liveUrl}" target="_blank" class="text-sm text-red-400 hover:text-red-300 flex items-center project-link" data-type="Live Demo" data-project="${project.title}">
-                            <i data-lucide="link" class="w-4 h-4 mr-1"></i> Live Demo
+                    <div class="flex flex-wrap gap-2 mb-6">${tagHtml}</div>
+                    <div class="flex space-x-4">
+                        <a href="${project.liveUrl}" target="_blank" class="text-red-400 hover:text-red-500 font-medium flex items-center transition">
+                            <i data-lucide="external-link" class="w-4 h-4 mr-2"></i> View Live
                         </a>
-                        <a href="${project.sourceUrl}" target="_blank" class="text-sm text-gray-400 hover:text-white flex items-center project-link" data-type="Source Code" data-project="${project.title}">
-                            <i data-lucide="github" class="w-4 h-4 mr-1"></i> Source Code
+                        <a href="${project.sourceUrl}" target="_blank" class="text-gray-400 hover:text-white flex items-center transition">
+                            <i data-lucide="github" class="w-4 h-4 mr-2"></i> Source Code
                         </a>
                     </div>
                 </div>
             `;
         }
 
-        function initializeProjects() {
-            const projectsContainer = document.getElementById('projects-container');
-            if (projectsContainer) {
-                projectsContainer.innerHTML = projectData.map(createProjectCardHTML).join('');
-                // Lucide icons को फिर से क्रिएट करें
-                lucide.createIcons();
-            }
+        function renderProjects() {
+            projectsContainer.innerHTML = projectData.map(generateProjectCard).join('');
+            lucide.createIcons(); // Re-create icons after injecting new HTML
+        }
+        
+        // -----------------------------------------------------
+        // 5. Skill Ring Generation (कौशल रिंग बनाना)
+        // -----------------------------------------------------
+        const skillsGrid = document.getElementById('skills-grid');
+
+        function createProgressRing(skill) {
+            // Calculate stroke-dashoffset based on value
+            const offset = circumference - (skill.value / 100) * circumference;
+
+            return `
+                <div class="text-center bg-[var(--card-bg)] p-6 rounded-xl border border-[var(--border-color)] card-hover-effect scroll-reveal">
+                    <div class="relative w-24 h-24 mx-auto mb-4 flex items-center justify-center">
+                        <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                            <!-- Background ring -->
+                            <circle cx="50" cy="50" r="${radius}" fill="transparent" class="text-gray-700 stroke-current" stroke-width="10"></circle>
+                            <!-- Foreground ring -->
+                            <circle cx="50" cy="50" r="${radius}" fill="transparent" class="progress-ring__circle stroke-current" 
+                                stroke-width="10" 
+                                stroke-dasharray="${circumference}"
+                                stroke-dashoffset="${circumference}" 
+                                data-progress-offset="${offset}"
+                                style="stroke: ${skill.color};">
+                            </circle>
+                        </svg>
+                        <span class="absolute text-xl font-bold text-white">${skill.value}%</span>
+                    </div>
+                    <p class="font-medium text-red-300">${skill.name}</p>
+                </div>
+            `;
         }
 
+        function renderSkills() {
+            skillsGrid.innerHTML = skillData.map(createProgressRing).join('');
+            // Apply progress animation (since it's CSS-based, we trigger the final state after rendering)
+            const circles = document.querySelectorAll('.progress-ring__circle');
+            circles.forEach(circle => {
+                // Use setTimeout to ensure CSS transition takes effect
+                setTimeout(() => {
+                    circle.style.strokeDashoffset = circle.getAttribute('data-progress-offset');
+                }, 100); 
+            });
+        }
 
         // -----------------------------------------------------
-        // 5. CTA Resume Download Animation (CTA रेज़्युमे डाउनलोड एनीमेशन)
+        // 6. Scroll Reveal Logic (स्क्रॉल रिवील)
         // -----------------------------------------------------
-        const resumeBtn = document.getElementById('resume-download-btn');
-        const downloadCounter = document.getElementById('download-counter');
-        const counterValue = document.getElementById('counter-value');
-        const downloadText = document.getElementById('download-text');
-        
-        let downloads = 450; // काल्पनिक शुरुआती डाउनलोड संख्या
-        
-        function animateDownloadCounter() {
-            // Counter को ऊपर स्लाइड करें
-            downloadCounter.classList.remove('translate-y-full');
-            
-            // काउंटर वैल्यू को एनिमेट करें
-            const target = downloads + Math.floor(Math.random() * 5) + 1; // 1 से 5 तक जोड़ें
-            
-            let current = downloads;
-            const duration = 1500; // 1.5 सेकंड
-            const start = performance.now();
-
-            function step(timestamp) {
-                const elapsed = timestamp - start;
-                const progress = Math.min(elapsed / duration, 1);
-                
-                // Ease-out फ़ंक्शन
-                const easedProgress = progress * (2 - progress);
-
-                current = Math.floor(downloads + easedProgress * (target - downloads));
-                counterValue.textContent = current;
-
-                if (progress < 1) {
-                    requestAnimationFrame(step);
-                } else {
-                    downloads = target;
-                    // 2 सेकंड बाद काउंटर को वापस स्लाइड करें
-                    setTimeout(() => {
-                        downloadCounter.classList.add('translate-y-full');
-                    }, 2000);
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target); // Stop observing once visible
                 }
-            }
-            requestAnimationFrame(step);
-        }
-
-        resumeBtn.addEventListener('click', (e) => {
-            e.preventDefault(); // फ़ाइल डाउनलोड को तुरंत न होने दें
-            animateDownloadCounter();
-            trackUserInteraction('Resume Download', 'Success');
-            
-            // 3 सेकंड बाद फ़ाइल डाउनलोड शुरू करने का अनुकरण करें
-            setTimeout(() => {
-                // यह वह जगह है जहाँ वास्तविक डाउनलोड शुरू होता
-                // window.location.href = '/path/to/resume.pdf'; 
-            }, 3000);
+            });
+        }, {
+            threshold: 0.1 // Trigger when 10% of the element is visible
         });
 
-
-        // -----------------------------------------------------
-        // 6. Typing Animation for Hero Section (टाइपिंग एनीमेशन)
-        // -----------------------------------------------------
-        const roles = ["Full-Stack Developer", "Web Architect", "UI/UX Enthusiast", "Code Magician"];
-        let roleIndex = 0;
-        let charIndex = 0;
-        const typingSpeed = 100;
-        const erasingSpeed = 50;
-        const delayBetweenRoles = 1500;
-        const typingTextElement = document.getElementById('typing-text');
-
-        function type() {
-            if (roleIndex < roles.length) {
-                const currentRole = roles[roleIndex];
-                if (charIndex < currentRole.length) {
-                    typingTextElement.textContent += currentRole.charAt(charIndex);
-                    charIndex++;
-                    setTimeout(type, typingSpeed);
-                } else {
-                    setTimeout(erase, delayBetweenRoles);
-                }
-            }
+        function setupScrollReveal() {
+            document.querySelectorAll('.scroll-reveal').forEach(el => {
+                observer.observe(el);
+            });
         }
+        
+        // -----------------------------------------------------
+        // 7. Modal & Form Submission (मॉडल और फॉर्म सबमिशन)
+        // -----------------------------------------------------
+        const modal = document.getElementById('message-modal');
+        const modalContent = document.getElementById('modal-content');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+        const contactForm = document.getElementById('contact-form');
 
-        function erase() {
-            const currentRole = roles[roleIndex];
-            if (charIndex > 0) {
-                typingTextElement.textContent = currentRole.substring(0, charIndex - 1);
-                charIndex--;
-                setTimeout(erase, erasingSpeed);
+        function showModal(title, body, isError = false) {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-body').textContent = body;
+            
+            const iconContainer = document.getElementById('modal-icon-container');
+            iconContainer.innerHTML = ''; // Clear previous icon
+            iconContainer.classList.remove('bg-red-600', 'bg-green-600');
+            
+            if (isError) {
+                iconContainer.classList.add('bg-red-600');
+                iconContainer.innerHTML = `<i data-lucide="x-circle" class="w-8 h-8 text-white"></i>`;
             } else {
-                roleIndex++;
-                if (roleIndex >= roles.length) {
-                    roleIndex = 0; 
-                }
-                setTimeout(type, typingSpeed); 
+                iconContainer.classList.add('bg-green-600');
+                iconContainer.innerHTML = `<i data-lucide="check-circle" class="w-8 h-8 text-white"></i>`;
             }
+            
+            lucide.createIcons(); // Re-create icons
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            // Trigger transition
+            setTimeout(() => {
+                modalContent.classList.remove('scale-95', 'opacity-0');
+                modalContent.classList.add('scale-100', 'opacity-100');
+            }, 10);
         }
 
+        function hideModal() {
+            modalContent.classList.remove('scale-100', 'opacity-100');
+            modalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
 
+        closeModalBtn.addEventListener('click', hideModal);
+
+        contactForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // In a real application, you would use 'fetch' here to send data to a server.
+            // For this example, we simulate a successful submission.
+            
+            // Get form data (optional, but good practice)
+            const name = document.getElementById('name').value;
+            // const email = document.getElementById('email').value;
+            // const message = document.getElementById('message').value;
+
+            // Simulate server delay
+            setTimeout(() => {
+                showModal(
+                    "Message Sent!", 
+                    `Thank you, ${name}! I will get back to you within 24 hours.`, 
+                    false
+                );
+                contactForm.reset();
+            }, 500);
+        });
+        
         // -----------------------------------------------------
-        // 7. Mobile Navigation Toggle (मोबाइल नेविगेशन)
+        // 8. Mobile Menu Toggle (मोबाइल मेनू टॉगल)
         // -----------------------------------------------------
         const menuButton = document.getElementById('menu-button');
         const mobileMenu = document.getElementById('mobile-menu');
@@ -826,147 +844,28 @@
         menuButton.addEventListener('click', () => {
             mobileMenu.classList.toggle('hidden');
         });
-        
+
+        // Close mobile menu when a link is clicked
         mobileMenu.querySelectorAll('a').forEach(link => {
             link.addEventListener('click', () => {
                 mobileMenu.classList.add('hidden');
             });
         });
 
-
         // -----------------------------------------------------
-        // 8. Scroll Reveal Animation (स्क्रॉल रिवील)
+        // 9. Master Initialization Function
         // -----------------------------------------------------
-        const revealElements = document.querySelectorAll('.scroll-reveal');
+        function initAllComponents() {
+            type(); // Start typing effect
+            renderProjects(); // Inject project cards
+            renderSkills(); // Inject skill rings
+            setupScrollReveal(); // Setup scroll animations
+            // MatrixEffect is started on window.onload
+        }
 
-        const scrollObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const delay = entry.target.getAttribute('data-scroll-delay') || '0';
-                    entry.target.style.transitionDelay = `${delay}s`; 
-                    entry.target.classList.add('visible');
-                    scrollObserver.unobserve(entry.target);
-                }
-            });
-        }, {
-            threshold: 0.1 
-        });
-
-        revealElements.forEach(element => {
-            scrollObserver.observe(element);
-        });
+        // NOTE: MatrixEffect is called first via window.onload. 
+        // All other initializations are now inside initAllComponents(), called from onload.
         
-        // -----------------------------------------------------
-        // 9. Simulated User Interaction Tracking (काल्पनिक एनालिटिक्स)
-        // -----------------------------------------------------
-
-        /**
-         * एक काल्पनिक एनालिटिक्स इवेंट को लॉग करता है। 
-         * यह दिखाता है कि आप क्लाइंट-साइड क्लिक्स को कैसे ट्रैक कर सकते हैं।
-         * @param {string} eventName - इवेंट का नाम (जैसे 'Contact Click', 'Live Demo View')
-         * @param {string} detail - अतिरिक्त जानकारी (जैसे प्रोजेक्ट का नाम)
-         */
-        function trackUserInteraction(eventName, detail) {
-            console.log(`[ANALYTICS] Event Logged: ${eventName} | Detail: ${detail} | Timestamp: ${new Date().toISOString()}`);
-            // यहाँ एक वास्तविक fetch/sendBeacon API कॉल एक एनालिटिक्स सर्वर को जाएगा।
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            // हीरो सेक्शन संपर्क बटन पर ट्रैकिंग
-            document.getElementById('hero-contact-btn')?.addEventListener('click', () => {
-                trackUserInteraction('Contact Click', 'Hero Section');
-            });
-            // CTA संपर्क बटन पर ट्रैकिंग
-            document.getElementById('cta-contact-btn')?.addEventListener('click', () => {
-                trackUserInteraction('Contact Click', 'CTA Section');
-            });
-            // प्रोजेक्ट लिंक पर ट्रैकिंग
-            document.querySelectorAll('.project-link').forEach(link => {
-                link.addEventListener('click', (e) => {
-                    const type = link.getAttribute('data-type');
-                    const project = link.getAttribute('data-project');
-                    trackUserInteraction('Project Link Click', `${type} for ${project}`);
-                });
-            });
-        });
-
-
-        // -----------------------------------------------------
-        // 10. Contact Form Submission and Custom Modal (संपर्क फ़ॉर्म)
-        // -----------------------------------------------------
-        const contactForm = document.getElementById('contact-form');
-        const messageModal = document.getElementById('message-modal');
-        const modalContent = document.getElementById('modal-content');
-        const modalTitle = document.getElementById('modal-title');
-        const modalBody = document.getElementById('modal-body');
-        const modalIconContainer = document.getElementById('modal-icon-container');
-        const closeModalBtn = document.getElementById('close-modal-btn');
-
-        function showMessageModal(isSuccess, title, body) {
-            modalTitle.textContent = title;
-            modalBody.textContent = body;
-            
-            modalIconContainer.innerHTML = '';
-            modalIconContainer.className = 'w-12 h-12 rounded-full mx-auto flex items-center justify-center mb-4';
-
-            if (isSuccess) {
-                modalIconContainer.classList.add('bg-green-600');
-                modalIconContainer.innerHTML = '<i data-lucide="check" class="w-6 h-6 text-white"></i>';
-            } else {
-                modalIconContainer.classList.add('bg-red-600');
-                modalIconContainer.innerHTML = '<i data-lucide="x" class="w-6 h-6 text-white"></i>';
-            }
-            
-            lucide.createIcons();
-
-            messageModal.classList.remove('hidden');
-            messageModal.classList.add('flex');
-            setTimeout(() => {
-                modalContent.classList.remove('scale-95', 'opacity-0');
-                modalContent.classList.add('scale-100', 'opacity-100');
-            }, 10);
-        }
-
-        function hideMessageModal() {
-            modalContent.classList.remove('scale-100', 'opacity-100');
-            modalContent.classList.add('scale-95', 'opacity-0');
-            setTimeout(() => {
-                messageModal.classList.remove('flex');
-                messageModal.classList.add('hidden');
-            }, 300);
-        }
-
-        closeModalBtn.addEventListener('click', hideMessageModal);
-
-        contactForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-
-            if (!contactForm.name.value || !contactForm.email.value || !contactForm.message.value) {
-                showMessageModal(false, 'Submission Failed', 'Please fill out all fields before submitting.');
-                trackUserInteraction('Form Submit', 'Failed - Missing Fields');
-                return;
-            }
-
-            // --- Simulated API Call ---
-            trackUserInteraction('Form Submit', 'Initiated');
-
-            setTimeout(() => {
-                contactForm.reset();
-                showMessageModal(true, 'Message Sent!', 'Thank you for reaching out. I will respond to your inquiry shortly.');
-                trackUserInteraction('Form Submit', 'Success');
-            }, 1000);
-        });
-
-
-        // -----------------------------------------------------
-        // 11. Initialization on DOM Load (लोड होने पर इनिशियलाइज़ेशन)
-        // -----------------------------------------------------
-        document.addEventListener('DOMContentLoaded', () => {
-            type(); // हीरो सेक्शन टाइपिंग एनीमेशन शुरू करें
-            initializeSkills(); // स्किल रिंग्स बनाएं और ऑब्ज़र्व करें
-            initializeProjects(); // प्रोजेक्ट कार्ड्स जनरेट करें
-        });
-
     </script>
 </body>
 </html>
