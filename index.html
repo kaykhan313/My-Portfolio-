@@ -1,852 +1,603 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modern Developer Portfolio - Kay Khan</title>
+    <title>Multi-View Browser Dashboard</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
-    
     <style>
-        /* CSS Variables for Dynamic Theming (Dark/Light) */
-        :root {
-            --bg-color: #0d1117;
-            --text-color: #e5e7eb;
-            --section-bg: #111827;
-            --border-color: #1e293b;
-            --shadow-color: rgba(0, 0, 0, 0.5);
-            --card-bg: #1f2937;
-        }
-
-        /* Light Theme Overrides */
-        .light-theme {
-            --bg-color: #ffffff;
-            --text-color: #1f2937;
-            --section-bg: #f9fafb;
-            --border-color: #e5e7eb;
-            --shadow-color: rgba(0, 0, 0, 0.1);
-            --card-bg: #ffffff;
-        }
+        /* Custom font */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
         
-        /* Apply Variables */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color); 
-            color: var(--text-color);
-            position: relative;
-            overflow-x: hidden;
-            transition: background-color 0.3s, color 0.3s; 
+            background-color: #0f172a; /* slate-900 */
         }
-        
-        /* The Canvas for the Coding Animation */
-        #matrix-canvas {
+        /* Maximized state for browsers */
+        .browser-maximized {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -2; 
-            pointer-events: none; 
-            opacity: 0.6; 
-            transition: opacity 0.5s;
+            top: 1rem;
+            left: 1rem;
+            right: 1rem;
+            bottom: 1rem;
+            z-index: 50;
         }
-
-        /* Adjust canvas opacity for light theme */
-        .light-theme #matrix-canvas {
-            opacity: 0.1; 
+        /* Hide number input arrows */
+        #browser-count-input::-webkit-inner-spin-button,
+        #browser-count-input::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
         }
-        
-        /* Section Container Styles */
-        .section-container {
-            border: 1px solid var(--border-color);
-            border-radius: 1.5rem; 
-            transition: all 0.5s ease-in-out;
-            background-color: var(--section-bg); 
-            box-shadow: 0 10px 20px var(--shadow-color); 
-            position: relative; 
-            z-index: 10;
+        #browser-count-input {
+            -moz-appearance: textfield;
         }
-
-        /* Hover effect to give a subtle glow */
-        .section-container:hover {
-            border-color: #374151; 
-            box-shadow: 0 0 50px rgba(255, 0, 0, 0.3); /* Red hover glow */
-        }
-
-        /* Scroll Reveal */
-        .scroll-reveal { opacity: 0; transform: translateY(30px); transition: opacity 0.8s ease-out, transform 0.8s ease-out; }
-        .scroll-reveal.visible { opacity: 1; transform: translateY(0); }
-
-        /* Gradient for text highlights */
-        .gradient-text {
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
-            background-image: linear-gradient(to right, #f87171, #ef4444); 
-        }
-
-        /* Card Hover */
-        .card-hover-effect { transition: all 0.3s ease; transform: translateZ(0); }
-        .card-hover-effect:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 15px 30px rgba(255, 0, 0, 0.15); } 
-
-        /* Hero Avatar Ring Pulse Animation - Changed to Red */
-        @keyframes pulse-ring {
-            0% { box-shadow: 0 0 0 0px rgba(239, 68, 68, 0.7); }
-            70% { box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); }
-            100% { box-shadow: 0 0 0 0px rgba(239, 68, 68, 0); }
-        }
-        .ring-pulse { animation: pulse-ring 2.5s infinite; }
-
-        /* Header Nav Link Glow on Hover - Changed to Red/Pink */
-        .nav-link-glow { position: relative; padding: 4px 0; }
-        .nav-link-glow::after {
-            content: ''; position: absolute; bottom: 0; left: 50%; width: 0; height: 2px;
-            background: linear-gradient(to right, #f87171, #ef4444);
-            transition: all 0.3s ease; transform: translateX(-50%);
-        }
-        .nav-link-glow:hover::after { width: 100%; }
-
-        /* SVG Progress Ring Styles */
-        .progress-ring__circle {
-            transition: stroke-dashoffset 0.8s ease-in-out;
-            transform: rotate(-90deg); 
-            transform-origin: 50% 50%;
-        }
-
-        /* Timeline Specific Styles */
-        .timeline { position: relative; }
-        .timeline::before {
-            content: ''; position: absolute; top: 0; left: 1rem; height: 100%; width: 4px;
-            background-color: var(--border-color); border-radius: 2px;
-        }
-        @media (min-width: 768px) {
-            .timeline::before { left: 50%; transform: translateX(-50%); }
-        }
-        .timeline-item-container {
-            position: relative; margin-bottom: 2rem; padding-left: 3rem; 
-        }
-        @media (min-width: 768px) {
-            .timeline-item-container:nth-child(odd) { padding-left: 0; padding-right: calc(50% + 3rem); }
-            .timeline-item-container:nth-child(even) { padding-right: 0; padding-left: calc(50% + 3rem); }
-        }
-        .timeline-dot {
-            position: absolute; top: 0.5rem; left: 0.7rem; width: 1rem; height: 1rem;
-            border-radius: 50%; background-color: #ef4444; 
-            border: 3px solid var(--section-bg); z-index: 10;
-        }
-        @media (min-width: 768px) {
-            .timeline-dot { left: 50%; transform: translateX(-50%); }
-        }
-
-        /* Testimonials Carousel Styles */
-        .testimonial-carousel {
+        /* Style for the actual iframe content area */
+        .browser-content-container {
+            flex-grow: 1;
             overflow: hidden;
             position: relative;
         }
-        .testimonial-track {
-            display: flex;
-            transition: transform 0.5s ease-in-out;
+        .browser-content-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
         }
-        .testimonial-item {
-            flex: 0 0 100%; 
-            padding: 2rem;
-            text-align: center;
-        }
-        #i:hover {
-            scale: calc(2.1);
-            transition: all 1s;
-        }
-        
-       
-        
-        /* Keyframes for Continuous Floating/Breathing Animation */
-        @keyframes floating {
-            0% { transform: translateZ(0) translateY(0px) rotateX(10deg); }
-            50% { transform: translateZ(10px) translateY(-5px) rotateX(10deg); } /* Slight float up and forward */
-            100% { transform: translateZ(0) translateY(0px) rotateX(10deg); }
-        }
-
-        /* Keyframes for Subtle Y-Axis Rotation */
-        @keyframes rotateY {
-            0% { transform: rotateY(-5deg); }
-            100% { transform: rotateY(5deg); }
-        }
-
-        /* Apply combined animation to the whole model */
-        .laptop-3d-model.left {
-            animation: floating 4s ease-in-out infinite alternate, 
-                       rotateY 8s ease-in-out infinite alternate;
-        }
-
-        .laptop-3d-model.right {
-            animation: floating 4s ease-in-out infinite alternate-reverse, 
-                       rotateY 8s ease-in-out infinite alternate-reverse;
-        }
-
-        
-
-        /* Code Lines Animation */
-        @keyframes typing-code {
-            0% { width: 50%; opacity: 0.8; }
-            50% { width: 95%; opacity: 1; }
-            100% { width: 50%; opacity: 0.8; }
-        }
-        
-        .code-line {
-            height: 4px;
-            background-color: #38bdf8; /* Blue code color */
-            margin: 4px 0;
-            animation: typing-code 3s infinite alternate ease-in-out;
-        }
-        .code-line:nth-child(1) { width: 90%; }
-        .code-line:nth-child(2) { width: 70%; animation-delay: 0.2s; }
-        .code-line:nth-child(3) { width: 85%; animation-delay: 0.1s; }
-        .code-line:nth-child(4) { width: 60%; animation-delay: 0.3s; }
-        .code-line:nth-child(5) { width: 95%; animation-delay: 0.4s; }
-
-        /* Light Theme Adjustments */
-        .light-theme .laptop-base, .light-theme .laptop-screen {
-            background-color: #f3f4f6;
-            border-color: #d1d5db;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-        .light-theme .laptop-inner-screen {
-            background-color: #e5e7eb;
-        }
-        .light-theme .code-line {
-            background-color: #ef4444; /* Red in light mode */
-        }
-
-        /* Media Query for smaller screens (Hide laptops on mobile) */
-        @media (max-width: 768px) {
-            .laptop-3d-model {
-                display: none !important;
-            }
-            #hero-content-wrapper {
-                gap: 0;
-            }
-        }
-
     </style>
 </head>
-<body class="antialiased">
-    <canvas id="matrix-canvas"></canvas>
+<body>
 
-    <header class="sticky top-0 z-50 bg-[var(--bg-color)]/90 backdrop-blur-sm shadow-lg">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center py-4">
-            <a href="#hero" class="text-2xl font-bold gradient-text">Kay Khan</a>
+    <div id="app-container" class="min-h-screen bg-slate-900 text-slate-200 p-4 md:p-8 font-sans pb-24 relative">
+        <div class="max-w-7xl mx-auto">
             
-            <nav class="hidden md:flex space-x-8 text-[var(--text-color)]">
-                <a href="#about" class="nav-link-glow hover:text-red-400 transition">About</a>
-                <a href="#experience" class="nav-link-glow hover:text-red-400 transition">Experience</a>
-                <a href="#skills" class="nav-link-glow hover:text-red-400 transition">Skills</a>
-                <a href="#projects" class="nav-link-glow hover:text-red-400 transition">Projects</a>
-                <a href="#testimonials" class="nav-link-glow hover:text-red-400 transition">Feedback</a>
-                <a href="#contact" class="nav-link-glow hover:text-red-400 transition">Contact</a>
-            </nav>
-
-            <div class="flex items-center space-x-4">
-                <button id="theme-toggle" class="p-2 rounded-full hover:bg-[var(--border-color)] transition">
-                    <i id="theme-icon" data-lucide="sun" class="w-6 h-6 text-yellow-400"></i>
-                </button>
-                <button id="menu-button" class="md:hidden text-[var(--text-color)] hover:text-red-400">
-                    <i data-lucide="menu" class="w-6 h-6"></i>
-                </button>
-            </div>
-        </div>
-
-        <div id="mobile-menu" class="hidden md:hidden bg-[var(--section-bg)] px-4 pb-4">
-            <nav class="flex flex-col space-y-2">
-                <a href="#about" class="py-2 hover:bg-gray-800 rounded px-2 transition">About</a>
-                <a href="#experience" class="py-2 hover:bg-gray-800 rounded px-2 transition">Experience</a>
-                <a href="#skills" class="py-2 hover:bg-gray-800 rounded px-2 transition">Skills</a>
-                <a href="#projects" class="py-2 hover:bg-gray-800 rounded px-2 transition">Projects</a>
-                <a href="#testimonials" class="py-2 hover:bg-gray-800 rounded px-2 transition">Feedback</a>
-                <a href="#contact" class="py-2 hover:bg-gray-800 rounded px-2 transition">Contact</a>
-            </nav>
-        </div>
-    </header>
-
-    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-
-        <section id="hero" class="min-h-[80vh] flex items-center justify-center text-center scroll-reveal">
-            <div id="hero-content-wrapper" class="flex flex-col md:flex-row items-center justify-center">
-
-                
-
-                <div class="flex flex-col items-center">
-                    <img src="kay.png"
-                        alt="Profile Picture" style="height: 200px; width: 160px;" id="i"
-                        class="w-40 h-40 rounded-full mx-auto mb-6 border-4 border-red-500 shadow-xl ring-4 ring-red-500/50 hover:ring-8 transition duration-500 ring-pulse">
-                    
-                    <h1 class="text-4xl sm:text-6xl font-extrabold mb-4 leading-tight">
-                        Hi, I'm <span class="gradient-text">Kay Khan</span>
-                    </h1>
-                    
-                    <p class="text-2xl sm:text-3xl text-gray-400 mb-8 font-light">
-                        I am a <span id="typing-text" class="font-medium text-red-400"></span>
-                    </p>
-
-                    <a href="#contact" id="hero-contact-btn" class="inline-flex items-center bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-8 rounded-full transition duration-300 shadow-lg hover:shadow-red-500/50 transform hover:scale-105">
-                        Get In Touch
-                        <i data-lucide="mail" class="w-5 h-5 ml-2"></i>
-                    </a>
-                </div>
-
-               
-                
-            </div>
-        </section>
-        <div class="h-px bg-gray-700 my-16 scroll-reveal" data-scroll-delay="0.1"></div>
-
-        <section id="about" style="background: none;" class="py-16 scroll-reveal section-container p-6 md:p-10 mb-16" data-scroll-delay="0.2">
-            <h2 class="text-3xl font-bold mb-8 gradient-text">About Me</h2>
-            <div class="grid md:grid-cols-2 gap-12 text-lg">
-                <p>
-                    I am a full-stack developer with 5+ years of experience specializing in high-performance web applications. My passion lies in bridging the gap between elegant design and robust backend infrastructure. I believe in writing clean, scalable, and maintainable code.
-                </p>
-                <p>
-                    I have worked with startups and large enterprises, focusing on technologies like React, Node.js, and modern cloud architecture (AWS/GCP). Currently, I am exploring machine learning integration into front-end user experiences to create more intelligent and dynamic applications.
-                </p>
-            </div>
-        </section>
-
-       
-
-        <section id="skills" style="background: none;" class="py-16 scroll-reveal section-container p-6 md:p-10 mb-16" data-scroll-delay="0.4">
-            <h2 class="text-3xl font-bold mb-8 gradient-text">Technical Skills</h2>
-            <div id="skills-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-                </div>
-        </section>
-
-        <section id="projects" style="background: none;" class="py-16 scroll-reveal section-container p-6 md:p-10 mb-16" data-scroll-delay="0.5">
-            <h2 class="text-3xl font-bold mb-8 gradient-text">Featured Projects</h2>
-            <div id="projects-container" class="space-y-12">
-                </div>
-        </section>
-        
-        <section id="testimonials" style="background: none;" class="py-16 scroll-reveal section-container p-6 md:p-10 mb-16" data-scroll-delay="0.6">
-            <h2 class="text-3xl font-bold mb-8 gradient-text text-center">Client Testimonials</h2>
-            
-            <div style="background: none;" class="testimonial-carousel max-w-4xl mx-auto bg-[var(--card-bg)] rounded-xl shadow-xl border border-[var(--border-color)] p-6">
-                <div id="testimonial-track" class="testimonial-track">
-                    
-                    <div class="testimonial-item">
-                        <i data-lucide="quote" class="w-10 h-10 text-red-500 mx-auto mb-4"></i>
-                        <p class="text-lg italic text-gray-300 mb-4">"Kay delivered an outstanding product, exceeding all expectations. His dedication to clean code and timely delivery is unmatched. Highly recommended for complex projects."</p>
-                        <div class="font-semibold text-white">Sarah Johnson</div>
-                        <div class="text-sm text-gray-400">CTO, Global Tech Solutions</div>
-                    </div>
-                    
-                    <div class="testimonial-item">
-                        <i data-lucide="quote" class="w-10 h-10 text-red-500 mx-auto mb-4"></i>
-                        <p class="text-lg italic text-gray-300 mb-4">"The professionalism and technical depth displayed by Kay were exceptional. He simplified our cloud infrastructure and improved application stability significantly."</p>
-                        <div class="font-semibold text-white">Michael Lee</div>
-                        <div class="text-sm text-gray-400">Founder, E-Commerce Startup</div>
-                    </div>
-
-                    <div class="testimonial-item">
-                        <i data-lucide="quote" class="w-10 h-10 text-red-500 mx-auto mb-4"></i>
-                        <p class="text-lg italic text-gray-300 mb-4">"A true architect. Kay helped us scale our microservices without a single hiccup. His React expertise is top-tier."</p>
-                        <div class="font-semibold text-white">Priya Sharma</div>
-                        <div class="text-sm text-gray-400">Lead Engineer, Fintech Corp.</div>
-                    </div>
-                    
-                </div>
-                
-                <div class="flex justify-center space-x-2 mt-6">
-                    <button id="prev-testimonial" class="p-2 bg-red-600/50 hover:bg-red-600 rounded-full transition">
-                        <i data-lucide="arrow-left" class="w-5 h-5 text-white"></i>
-                    </button>
-                    <button id="next-testimonial" class="p-2 bg-red-600/50 hover:bg-red-600 rounded-full transition">
-                        <i data-lucide="arrow-right" class="w-5 h-5 text-white"></i>
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <section id="cta" class="py-16 scroll-reveal section-container p-6 md:p-12 mb-16 text-center bg-red-900/20 border-red-600/50" data-scroll-delay="0.7">
-            <h2 class="text-4xl font-extrabold mb-4 text-white">Ready to Start a Project?</h2>
-            <p class="text-xl text-red-200 mb-8">
-                Send me a direct message to discuss your requirements.
-            </p>
-            <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
-                <button id="resume-download-btn" class="items-center justify-center bg-white text-red-600 font-semibold py-3 px-8 rounded-full transition duration-300 shadow-xl hover:bg-gray-200 transform hover:scale-105 relative overflow-hidden hidden">
-                    <span id="download-text">
-                        <i data-lucide="download" class="w-5 h-5 mr-2 inline-block"></i> Download Resume
+            <!-- !!! CRITICAL SECURITY WARNING (Red/Laal Rang) !!! -->
+            <div class="mb-6 p-4 bg-red-800/20 text-red-300 rounded-xl border-2 border-red-600/60 text-base font-bold flex items-center gap-3 shadow-lg pulse-animation">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-alert-triangle"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+                <div class="flex flex-col">
+                    <span class="text-xl text-red-400">Security Restriction Alert!</span>
+                    <span>
+                        **IMPORTANT:** The embedded browsers **CANNOT** load high-security external sites (like `google.com`, `youtube.com`). This is blocked by the external site's policy (`X-Frame-Options` / `CSP`). This tool is designed for **your own staging/dev domains** only.
                     </span>
-                    <div id="download-counter" class="absolute inset-0 bg-red-600 text-white flex items-center justify-center text-lg font-bold transition-all duration-500 ease-out transform translate-y-full">
-                        <span id="counter-value">0</span> Downloads
-                    </div>
-                </button>
-                <a href="#contact" id="cta-contact-btn" class="inline-flex items-center justify-center border-2 border-red-500 text-white font-semibold py-3 px-8 rounded-full transition duration-300 hover:bg-red-500/10 transform hover:scale-105">
-                    <i data-lucide="send" class="w-5 h-5 mr-2"></i> Send Message
-                </a>
+                </div>
             </div>
-        </section>
-
-
-        <section id="contact" style="background: none;" class="py-16 scroll-reveal section-container p-6 md:p-10" data-scroll-delay="0.8">
-            <h2 class="text-3xl font-bold mb-8 gradient-text text-center">Get In Touch</h2>
-            <p class="text-center text-lg mb-10 text-gray-400">
-                Have a project? Let's connect and discuss how I can help your vision come to life.
-            </p>
-
-            <form id="contact-form" action="https://formspree.io/f/xyzrppad" method="POST" class="max-w-xl mx-auto space-y-6">
+            
+            <!-- Global Search Bar -->
+            <div class="mb-8 p-4 bg-slate-800 rounded-xl shadow-xl border border-slate-700">
+                <h2 class="text-xl font-semibold text-blue-400 mb-3 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-rocket"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.97-2.07 1-3.34-1-.5-1.72-1.29-2-2.66-.02-.11.02-.23.08-.34l.79-1.39c.32-.47.88-.73 1.44-.73h.3c.69 0 1.25.46 1.5.95l1.4 2.8c.24.47.78.78 1.35.78h.83c.57 0 1.1-.31 1.35-.78l1.4-2.8c.25-.49.81-.95 1.5-.95h.3c.56 0 1.12.26 1.44.73l.79 1.39c.06.11.1.23.08.34l.79 1.39c.32-.47.88-.73 1.44-.73h.3c.69 0 1.25.46 1.5.95l1.4 2.8c.24.47.78.78 1.35.78h.83c.57 0 1.1-.31 1.35-.78l1.4-2.8c.25-.49.81-.95 1.5-.95h.3c.56 0 1.12.26 1.44.73l.79 1.39c.06.11.1.23.08.34-1 .5-1.72 1.29-2 2.66-.03.11.02.23.08.34l.79 1.39c.32-.47.88-.73 1.44-.73h.3c.69 0 1.25.46 1.5.95l1.4 2.8c.24.47.78.78 1.35.78h.83c.57 0 1.1-.31 1.35-.78l1.4-2.8c.25-.49.81-.95 1.5-.95h.3c.56 0 1.12.26 1.44.73l.79 1.39c.06.11.1.23.08.34l.79 1.39c.32-.47.88-.73 1.44-.73h.3c.69 0 1.25.46 1.5.95l1.4 2.8c.24.47.78.78 1.35.78h.83c.57 0 1.1-.31 1.35-.78l1.4-2.8c.25-.49.81-.95 1.5-.95h.3c.56 0 1.12.26 1.44.73l.79 1.39c.06.11.1.23.08.34-1 .5-1.72 1.29-2 2.66-.02-.11.02-.23.08-.34l.79-1.39c.32-.47.88-.73 1.44-.73h.3c.69 0 1.25.46 1.5.95l1.4 2.8c.24.47.78.78 1.35.78h.83c.57 0 1.1-.31 1.35-.78l1.4-2.8c.25-.49.81-.95 1.5-.95h.3c.56 0 1.12.26 1.44.73l.79 1.39c.06.11.1.23.08.34z"/></svg>
+                    Global Command Input
+                </h2>
+                <form id="global-url-form" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                    <div class="flex-1 flex items-center bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm shadow-inner focus-within:ring-2 focus-within:ring-indigo-500/50 transition-all">
+                        <span class="text-slate-500 mr-2">URL:</span>
+                        <input 
+                            type="text" 
+                            id="global-url-input"
+                            placeholder="Enter URL (e.g., localhost:8000/test or staging.example.com)"
+                            class="flex-1 outline-none text-white font-medium placeholder-slate-600 bg-transparent"
+                            value="https://localhost:3000"
+                        />
+                    </div>
+                    <button 
+                        type="submit" 
+                        class="shrink-0 px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg shadow-lg shadow-indigo-500/30 transition-all active:scale-[0.98] disabled:opacity-50"
+                    >
+                        Navigate All 
+                        <span id="global-nav-count">0</span> Nodes
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Header -->
+            <header class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <label for="name" class="block text-sm font-medium mb-2 text-gray-300">Your Name</label>
-                    <input type="text" id="name" name="name" required class="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 focus:border-red-500 focus:ring-red-500 outline-none" placeholder="Enter your name">
+                    <h1 class="text-3xl font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
+                        Multi-View Nexus
+                    </h1>
+                    <p id="header-status" class="text-slate-400 text-sm mt-1">
+                        Advanced Browser Grid System • <span id="browser-count-header">0</span> Active Nodes
+                    </p>
                 </div>
-                <div>
-                    <label for="email" class="block text-sm font-medium mb-2 text-gray-300">Your Email</label>
-                    <input type="email" id="email" name="email" required class="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 focus:border-red-500 focus:ring-red-500 outline-none" placeholder="Enter your email address">
+                
+                <div class="flex items-center gap-3">
+                    <span class="px-3 py-1 rounded-full bg-green-500/10 text-green-400 text-xs border border-green-500/20 font-mono">
+                        System Online
+                    </span>
+                    <button class="p-2 bg-slate-800 rounded-lg hover:bg-slate-700 transition-colors border border-slate-700" title="Open Console">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-terminal"><polyline points="4 17 10 17 10 10"></polyline><line x1="12" x2="20" y1="12" y2="12"></line></polyline></svg>
+                    </button>
                 </div>
-                <div>
-                    <label for="message" class="block text-sm font-medium mb-2 text-gray-300">Message</label>
-                    <textarea id="message" name="message" rows="5" required class="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 focus:border-red-500 focus:ring-red-500 outline-none" placeholder="Your message..."></textarea>
-                </div>
-                <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 rounded-lg transition duration-300 shadow-lg hover:shadow-red-500/50 transform hover:scale-[1.02]">
-                    Send Message
+            </header>
+
+            <!-- Dynamic Grid Container -->
+            <div id="browser-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6 transition-all duration-300">
+                <!-- Browser windows will be injected here by JavaScript -->
+            </div>
+            
+            <!-- Empty State -->
+            <div id="empty-state" class="hidden col-span-full h-64 flex flex-col items-center justify-center text-slate-500 border-2 border-dashed border-slate-700 rounded-xl">
+                <!-- Globe Icon (lucide-react Globe) -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-globe mb-4 opacity-50"><circle cx="12" cy="12" r="10"></circle><line x1="2" x2="22" y1="12" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                <p>No active browser nodes.</p>
+                <button id="init-new-node" class="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg">
+                    Initialize New Node
                 </button>
-            </form>
-        </section>
-
-    </main>
-
-    <footer class="mt-20 border-t border-gray-800">
-        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center text-gray-500">
-            <p>&copy; 2024 Kay Khan. All rights reserved. | Built with HTML & Tailwind CSS.</p>
+            </div>
         </div>
-    </footer>
 
-    <div id="message-modal" class="fixed inset-0 bg-black bg-opacity-75 hidden items-center justify-center z-[100]">
-        <div class="bg-[var(--section-bg)] p-8 rounded-xl shadow-2xl max-w-sm w-full transform transition-all duration-300 scale-95 opacity-0" id="modal-content">
-            <div class="text-center">
-                <div id="modal-icon-container" class="w-12 h-12 rounded-full mx-auto flex items-center justify-center mb-4">
-                    </div>
-                <h3 id="modal-title" class="text-xl font-bold mb-2 text-white"></h3>
-                <p id="modal-body" class="text-gray-400 mb-6"></p>
-                <button id="close-modal-btn" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition">Close</button>
-            </div>
+        <!-- Floating Action Controls (Bottom Center/Right) -->
+        <div class="fixed bottom-6 right-6 md:right-12 flex items-center gap-3 bg-slate-800/90 backdrop-blur-md p-2 rounded-2xl shadow-2xl border border-slate-700/50 z-40">
+            <span class="px-3 text-xs font-bold text-slate-400 uppercase tracking-wider hidden sm:block">
+                Grid Controls
+            </span>
+            <div class="h-6 w-px bg-slate-700 hidden sm:block"></div>
+            
+            <button 
+                id="remove-browser-btn"
+                class="p-3 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-xl transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Remove Last Browser"
+                disabled
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-minus"><path d="M5 12h14"/></svg>
+            </button>
+
+            <!-- Browser Count Input Field -->
+            <input
+                type="number"
+                id="browser-count-input"
+                min="0"
+                value="0"
+                class="bg-slate-900 px-3 py-2 rounded-lg font-mono text-blue-400 font-bold w-16 text-center focus:ring-2 focus:ring-indigo-500/50 outline-none transition-all"
+                title="Directly set the number of browser nodes"
+                onchange="handleCountInput(event)"
+                onkeydown="if(event.key === 'Enter') handleCountInput(event);"
+            />
+
+            <button 
+                id="add-browser-btn"
+                class="p-3 bg-blue-600 hover:bg-blue-500 text-white rounded-xl shadow-lg shadow-blue-500/20 transition-all active:scale-95"
+                title="Add New Browser"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+            </button>
         </div>
     </div>
 
-
     <script>
-        // Lucide Icons को इनिशियलाइज़ करें
-        lucide.createIcons();
-
-        // -----------------------------------------------------
-        // GLOBAL DATA (ग्लोबल डेटा)
-        // -----------------------------------------------------
-        const projectData = [
-            {
-                title: "Gaming Hub",
-                description: "A sleek, high-performance gaming portal featuring an immersive dark-theme UI and seamless responsiveness. Built with React and Tailwind CSS.",
-                tags: [{ name: "Games", color: "purple" }, { name: "React", color: "red" }, { name: "Solidity", color: "green" }],
-                liveUrl: "https://crazy20.netlify.app/",
-                sourceUrl: "#"
-            },
-            {
-                title: "AI-Powered Content Generator",
-                description: "A SaaS tool using a custom fine-tuned GPT model to generate marketing copy. Features include a subscription model and usage analytics.",
-                tags: [{ name: "Python (Flask)", color: "yellow" }, { name: "Tailwind CSS", color: "cyan" }, { name: "Stripe API", color: "red" }],
-                liveUrl: "#",
-                sourceUrl: "#"
-            },
-            {
-                title: "Real-time Chat Application",
-                description: "High-performance chat application using WebSockets for instant messaging, focusing on low latency and scalability.",
-                tags: [{ name: "Node.js", color: "green" }, { name: "WebSockets", color: "red" }, { name: "MongoDB", color: "purple" }],
-                liveUrl: "#",
-                sourceUrl: "#"
-            }
+        // --- Icon SVGs (for reuse in JavaScript) ---
+        const icons = {
+            search: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>`,
+            arrowLeft: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>`,
+            arrowRight: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>`,
+            rotateCw: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-rotate-cw"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.76 2.87"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.76-2.87"/><path d="M21 21v-5h-5"/></svg>`,
+            lock: `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lock"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`,
+            maximize2: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-maximize-2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><path d="M21 3 14 10"/><path d="M3 21 10 14"/></svg>`,
+            minimize2: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-minimize-2"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><path d="m21 3-7 7"/><path d="m3 21 7-7"/></svg>`,
+            globe: `<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-globe"><circle cx="12" cy="12" r="10"></circle><line x1="2" x2="22" y1="12" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>`,
+            layout: `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-layout"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><line x1="3" x2="21" y1="9" y2="9"/><line x1="9" x2="9" y1="21" y2="9"/></svg>`
+        };
+        
+        // Browser template options
+        const browserTemplates = [
+            { title: 'Local Dev (Example)', initialUrl: 'http://localhost:3000/home' },
+            { title: 'Staging Server (Example)', initialUrl: 'https://staging.my-app.com' },
+            { title: 'External Search (Blocked)', initialUrl: 'https://www.google.com/search' },
+            { title: 'Design System (Example)', initialUrl: 'http://docs.styleguide.com' },
         ];
 
-        const radius = 40;
-        const circumference = 2 * Math.PI * radius;
-        const skillData = [
-            { id: "js", name: "JavaScript (ES6+)", value: 90, color: "#ef4444" }, 
-            { id: "react", name: "React & Redux", value: 85, color: "#f87171" }, 
-            { id: "node", name: "Node.js & Express", value: 80, color: "#10b981" },
-            { id: "db", name: "PostgreSQL/MongoDB", value: 75, color: "#f59e0b" },
-            { id: "git", name: "Git & DevOps", value: 95, color: "#ef4444" }, 
-            { id: "cloud", name: "Cloud (AWS/GCP)", value: 70, color: "#22d3ee" }
+        // --- State Management ---
+        let browsers = [
+            { id: 1, title: 'Local Dev', initialUrl: 'http://localhost:3000/code', currentUrl: 'http://localhost:3000/code', inputUrl: 'http://localhost:3000/code', isLoading: false, isMaximized: false, history: ['http://localhost:3000/code'], historyIndex: 0 },
+            { id: 2, title: 'Staging Server', initialUrl: 'https://staging.my-app.com/test', currentUrl: 'https://staging.my-app.com/test', inputUrl: 'https://staging.my-app.com/test', isLoading: false, isMaximized: false, history: ['https://staging.my-app.com/test'], historyIndex: 0 },
+            { id: 3, title: 'External Site (Blocked)', initialUrl: 'https://www.google.com', currentUrl: 'https://www.google.com', inputUrl: 'https://www.google.com', isLoading: false, isMaximized: false, history: ['https://www.google.com'], historyIndex: 0 },
+            { id: 4, title: 'Another Dev View', initialUrl: 'http://127.0.0.1:8080/monitor', currentUrl: 'http://127.0.0.1:8080/monitor', inputUrl: 'http://127.0.0.1:8080/monitor', isLoading: false, isMaximized: false, history: ['http://127.0.0.1:8080/monitor'], historyIndex: 0 },
         ];
+        
+        const gridContainer = document.getElementById('browser-grid');
+        const countHeader = document.getElementById('browser-count-header');
+        const globalNavCount = document.getElementById('global-nav-count');
+        const emptyState = document.getElementById('empty-state');
+        const removeBrowserBtn = document.getElementById('remove-browser-btn');
+        const browserCountInput = () => document.getElementById('browser-count-input'); 
 
-        // -----------------------------------------------------
-        // 0. Matrix Background Effect (मैट्रिक्स बैकग्राउंड)
-        // -----------------------------------------------------
-        function MatrixEffect() {
-            const canvas = document.getElementById('matrix-canvas');
-            const ctx = canvas.getContext('2d');
+        /**
+         * Fetches the browser state by ID.
+         */
+        function getBrowserState(id) {
+            return browsers.find(b => b.id === id);
+        }
+
+        /**
+         * Updates the browser state.
+         * @param {number} id - Browser ID.
+         * @param {object} updates - New values.
+         */
+        function updateBrowserState(id, updates) {
+            browsers = browsers.map(b => b.id === id ? { ...b, ...updates } : b);
+            renderBrowsers(); // Rerender
+        }
+
+        // --- Core Functions ---
+
+        /**
+         * Renders the iframe and the overlay for security blockage.
+         * @param {number} id - Browser ID.
+         * @param {string} url - Current URL.
+         * @param {boolean} isLoading - Loading state.
+         * @returns {string} - HTML string of the content.
+         */
+        function renderContent(id, url, isLoading) {
+            // Check if the URL is a commonly blocked external site
+            const isBlocked = url.includes('google.com') || url.includes('youtube.com') || url.includes('facebook.com');
             
-            let width = canvas.width = window.innerWidth;
-            let height = canvas.height = document.documentElement.scrollHeight;
-            window.addEventListener('resize', () => {
-                width = canvas.width = window.innerWidth;
-                height = canvas.height = document.documentElement.scrollHeight;
-                columns = Math.floor(width / fontSize);
-                drops = new Array(columns).fill(1);
-            });
-
-            const characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ~!@#$%^&*()_+-={}[]:";\'<>?,./|\\';
-            const fontSize = 16;
-            let columns = Math.floor(width / fontSize);
-            let drops = new Array(columns).fill(1);
-            let frameRate = 1000 / 30; 
-            let lastDrawTime = 0;
-
-            function draw(timestamp) {
-                if (timestamp < lastDrawTime + frameRate) {
-                    requestAnimationFrame(draw);
-                    return;
-                }
-                lastDrawTime = timestamp;
-
-                ctx.fillStyle = 'rgba(13, 17, 23, 0.05)'; 
-                ctx.fillRect(0, 0, width, height);
-
-                if (document.body.classList.contains('light-theme')) {
-                    ctx.fillStyle = 'rgba(0, 0, 0, 0.3)'; // Darker color in light mode
-                } else {
-                    ctx.fillStyle = '#ef4444'; // Red in dark mode
-                }
-                ctx.font = `${fontSize}px monospace`;
-
-                for (let i = 0; i < drops.length; i++) {
-                    const text = characters[Math.floor(Math.random() * characters.length)];
-                    const x = i * fontSize;
-                    const y = drops[i] * fontSize;
-
-                    ctx.fillText(text, x, y);
-
-                    if (y > height && Math.random() > 0.975) {
-                        drops[i] = 0;
-                    }
-
-                    drops[i]++;
-                }
-
-                requestAnimationFrame(draw);
+            // Determine the URL to pass to the iframe. Ensure it starts with http(s)
+            let safeUrl = url.startsWith('http') ? url : `https://${url}`;
+            
+            // Use a local placeholder URL for demonstration safety/consistency 
+            // if a commonly blocked site is entered, to avoid console spam.
+            // On a real server, we would let the iframe try to load the actual URL.
+            // For this sandbox, we stick to the safety.
+            if (isBlocked) {
+                 // For the sandbox, we show a friendly placeholder instead of a blank iframe
+                 safeUrl = "about:blank"; 
             }
 
-            draw(0);
+            return `
+                <!-- The actual iframe used to load the content -->
+                <iframe 
+                    id="iframe-${id}" 
+                    src="${safeUrl}" 
+                    title="Browser Node ${id} - ${safeUrl}"
+                    sandbox="allow-forms allow-scripts allow-same-origin allow-popups allow-modals"
+                    onload="handleIframeLoad(${id}, true)"
+                    onerror="handleIframeLoad(${id}, false)"
+                    class="transition-opacity duration-300 ${isLoading ? 'opacity-20' : 'opacity-100'}"
+                ></iframe>
+
+                <!-- Loading Overlay -->
+                ${isLoading ? `
+                    <div class="absolute inset-0 flex flex-col items-center justify-center bg-white/70 backdrop-blur-sm text-gray-700 z-10">
+                        ${icons.rotateCw.replace('16', '24').replace('16', '24').replace('lucide-rotate-cw', 'w-8 h-8 mb-3 text-indigo-500 animate-spin')}
+                        <p class="font-semibold">Loading Page...</p>
+                        <p class="text-xs text-gray-500 mt-1">Attempting to load: ${url}</p>
+                    </div>
+                ` : ''}
+
+                <!-- Blocked Content Overlay (Appears if an external high-security site is requested) -->
+                ${isBlocked ? `
+                    <div class="absolute inset-0 flex flex-col items-center justify-center text-center p-4 bg-red-50/90 text-red-700 z-20">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-lock-keyhole"><circle cx="12" cy="16" r="1"/><rect width="18" height="12" x="3" y="10" rx="2"/><path d="M7 10V7a5 5 0 0 1 10 0v3"/></svg>
+                        <h3 class="text-lg font-bold mt-2">Content Blocked by Security Policy</h3>
+                        <p class="text-sm">
+                            The website at <span class="font-mono">${url}</span> does not allow itself to be embedded in another site (X-Frame-Options/CSP).
+                            **Try your own local or staging URLs instead!**
+                        </p>
+                    </div>
+                ` : ''}
+            `;
+        }
+        
+        /**
+         * Updates the loading state when an iframe finishes loading (or fails).
+         */
+        window.handleIframeLoad = function(id, success) {
+            // Note: Iframe load/error events are unreliable for cross-origin security blocks.
+            // We use this primarily for mock loading simulation to clear the spinner.
+            updateBrowserState(id, { isLoading: false });
+            if (!success) {
+                console.warn(`Browser ${id} failed to load or was blocked by SOP/XFO.`);
+            }
         }
 
 
-        // -----------------------------------------------------
-        // 1. Theme Toggle Logic (थीम बदलने का लॉजिक)
-        // -----------------------------------------------------
-        const themeToggleBtn = document.getElementById('theme-toggle');
-        const themeIcon = document.getElementById('theme-icon');
-        const mobileMenu = document.getElementById('mobile-menu');
-        const menuButton = document.getElementById('menu-button');
-
-        function toggleTheme() {
-            const isLightTheme = document.body.classList.toggle('light-theme');
+        /**
+         * Creates the full HTML structure for a single browser window.
+         * @param {object} browser - Browser state object.
+         * @returns {string} - Browser window's HTML string.
+         */
+        function createBrowserWindow(browser) {
+            const { id, currentUrl, inputUrl, isLoading, isMaximized, historyIndex, history } = browser;
             
-            if (isLightTheme) {
-                themeIcon.setAttribute('data-lucide', 'moon');
-                themeIcon.classList.remove('text-yellow-400');
-                themeIcon.classList.add('text-gray-700');
+            const isBackDisabled = historyIndex <= 0;
+            const isForwardDisabled = historyIndex >= history.length - 1;
+            
+            return `
+                <div id="browser-${id}" data-id="${id}" class="browser-window flex flex-col bg-slate-800 rounded-xl shadow-2xl overflow-hidden border border-slate-700/50 transition-all duration-500 ease-in-out ${isMaximized ? 'browser-maximized' : 'relative h-[350px] md:h-[450px] hover:shadow-indigo-500/20'}">
+                    
+                    <!-- Browser Toolbar -->
+                    <div class="bg-slate-700 border-b border-slate-600 p-2 flex items-center gap-2 select-none">
+                        <!-- Traffic Lights -->
+                        <div class="flex gap-1.5 mr-2">
+                            <div class="w-3 h-3 rounded-full bg-red-500 hover:bg-red-600 cursor-pointer" onclick="handleClose(${id})" title="Close Browser"></div>
+                            <div class="w-3 h-3 rounded-full bg-yellow-500 hover:bg-yellow-600 cursor-pointer" title="Minimize"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-500 hover:bg-green-600 cursor-pointer" onclick="handleToggleMaximize(${id})" title="Maximize"></div>
+                        </div>
+
+                        <!-- Navigation Controls -->
+                        <div class="flex items-center gap-1 text-slate-400">
+                            <button onclick="handleHistoryNavigation(${id}, -1)" class="p-1 hover:bg-slate-600 rounded-md transition-colors ${isBackDisabled ? 'opacity-30 cursor-not-allowed' : ''}" ${isBackDisabled ? 'disabled' : ''}>${icons.arrowLeft}</button>
+                            <button onclick="handleHistoryNavigation(${id}, 1)" class="p-1 hover:bg-slate-600 rounded-md transition-colors ${isForwardDisabled ? 'opacity-30 cursor-not-allowed' : ''}" ${isForwardDisabled ? 'disabled' : ''}>${icons.arrowRight}</button>
+                            <button onclick="handleRefresh(${id})" class="p-1 hover:bg-slate-600 rounded-md transition-colors ${isLoading ? 'animate-spin' : ''}" title="Refresh">
+                                ${icons.rotateCw}
+                            </button>
+                        </div>
+
+                        <!-- Address Bar -->
+                        <form onsubmit="handleIndividualNavigate(event, ${id})" class="flex-1 flex items-center bg-slate-900 border border-slate-600 rounded-lg px-3 py-1.5 text-sm shadow-inner focus-within:ring-2 focus-within:ring-indigo-500/50 transition-all">
+                            ${icons.lock.replace('12', '10').replace('12', '10').replace('lucide-lock', 'text-green-500 mr-2')}
+                            <span class="text-slate-500 mr-1">URL:</span>
+                            <input 
+                                type="text" 
+                                value="${inputUrl}"
+                                oninput="handleInputUrl(event, ${id})"
+                                class="flex-1 outline-none text-white font-medium placeholder-slate-600 bg-transparent"
+                            />
+                        </form>
+
+                        <!-- Window Controls -->
+                        <div class="flex items-center gap-2 text-slate-400 ml-1">
+                            <button onclick="handleToggleMaximize(${id})" class="p-1 hover:text-slate-200" title="${isMaximized ? 'Minimize' : 'Maximize'}">
+                                ${isMaximized ? icons.minimize2 : icons.maximize2}
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Browser Content Area (Now contains the real iframe) -->
+                    <div class="browser-content-container">
+                        ${renderContent(id, currentUrl, isLoading)}
+                    </div>
+                </div>
+            `;
+        }
+
+        /**
+         * Rerenders the entire browser grid.
+         */
+        function renderBrowsers() {
+            gridContainer.innerHTML = browsers.map(createBrowserWindow).join('');
+            
+            // Update Header and Footer counts
+            const count = browsers.length;
+            countHeader.textContent = count;
+            globalNavCount.textContent = count;
+            
+            // Synchronize input field value
+            const countInput = browserCountInput();
+            if (countInput) {
+                countInput.value = count;
+            }
+
+            // Update visibility of empty state and remove button
+            if (count === 0) {
+                emptyState.classList.remove('hidden');
+                emptyState.classList.add('flex');
+                removeBrowserBtn.disabled = true;
+                document.getElementById('global-url-form').querySelector('button').disabled = true;
             } else {
-                themeIcon.setAttribute('data-lucide', 'sun');
-                themeIcon.classList.remove('text-gray-700');
-                themeIcon.classList.add('text-yellow-400');
+                emptyState.classList.add('hidden');
+                emptyState.classList.remove('flex');
+                removeBrowserBtn.disabled = false;
+                document.getElementById('global-url-form').querySelector('button').disabled = false;
             }
-            lucide.createIcons();
-        }
-
-        themeToggleBtn.addEventListener('click', toggleTheme);
-        
-        // Mobile Menu Toggle
-        menuButton.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
-
-        // -----------------------------------------------------
-        // 2. Typing Effect (टाइपिंग इफ़ेक्ट)
-        // -----------------------------------------------------
-        function initTypingEffect() {
-            const typingTextElement = document.getElementById('typing-text');
-            const roles = ["Full Stack Developer", "Web Architect", "Problem Solver", "MERN Stack Expert"];
-            let roleIndex = 0;
-            let charIndex = 0;
-            let isDeleting = false;
-            let typingSpeed = 150; 
-            let delay = 2000;
-
-            function type() {
-                const currentRole = roles[roleIndex];
-                let displayedText = currentRole.substring(0, charIndex);
-
-                typingTextElement.textContent = displayedText;
-
-                if (!isDeleting) {
-                    charIndex++;
-                    if (charIndex > currentRole.length) {
-                        isDeleting = true;
-                        typingSpeed = 75; 
-                        delay = 1500;
-                    }
-                } else {
-                    charIndex--;
-                    if (charIndex < 0) {
-                        isDeleting = false;
-                        roleIndex = (roleIndex + 1) % roles.length;
-                        typingSpeed = 150;
-                        delay = 1000;
-                    }
-                }
-
-                const nextDelay = isDeleting ? typingSpeed : charIndex === currentRole.length ? delay : typingSpeed;
-                setTimeout(type, nextDelay);
-            }
-            type(); 
-        }
-
-        // -----------------------------------------------------
-        // 3. Scroll Reveal (स्क्रॉल रिवील)
-        // -----------------------------------------------------
-        function initScrollReveal() {
-            const sections = document.querySelectorAll('.scroll-reveal');
-            const observerOptions = {
-                root: null,
-                rootMargin: '0px',
-                threshold: 0.1 
-            };
-
-            const observer = new IntersectionObserver((entries, observer) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const delay = parseFloat(entry.target.dataset.scrollDelay) || 0;
-                        setTimeout(() => {
-                            entry.target.classList.add('visible');
-                        }, delay * 1000); 
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, observerOptions);
-
-            sections.forEach(section => {
-                observer.observe(section);
-            });
-        }
-
-        // -----------------------------------------------------
-        // 4. Skills Grid (कौशल ग्रिड)
-        // -----------------------------------------------------
-        function initSkillsGrid() {
-            const skillsGrid = document.getElementById('skills-grid');
-
-            skillData.forEach(skill => {
-                const offset = circumference - (skill.value / 100) * circumference;
-                
-                const skillCard = `
-                    <div class="card-hover-effect bg-[var(--card-bg)] p-6 rounded-xl shadow-lg border border-[var(--border-color)] text-center">
-                        <div class="relative w-24 h-24 mx-auto mb-4">
-                            <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                                <circle class="text-gray-700" stroke-width="8" stroke="currentColor" fill="transparent" r="${radius}" cx="50" cy="50" />
-                                <circle class="progress-ring__circle" stroke-width="8" stroke="${skill.color}" fill="transparent" r="${radius}" cx="50" cy="50"
-                                    style="stroke-dasharray: ${circumference}; stroke-dashoffset: ${circumference};"
-                                    data-offset="${offset}"
-                                    data-circumference="${circumference}"
-                                    data-skill-value="${skill.value}"
-                                />
-                            </svg>
-                            <span class="absolute inset-0 flex items-center justify-center text-xl font-bold text-red-400">${skill.value}%</span>
-                        </div>
-                        <h4 class="text-lg font-semibold text-[var(--text-color)]">${skill.name}</h4>
-                    </div>
-                `;
-                skillsGrid.innerHTML += skillCard;
-            });
         }
         
-        // -----------------------------------------------------
-        // 5. Projects Grid (परियोजना ग्रिड)
-        // -----------------------------------------------------
-        function initProjectsGrid() {
-            const projectsContainer = document.getElementById('projects-container');
+        /**
+         * Performs navigation logic and updates history state.
+         * @param {object} browser - The current browser state.
+         * @param {string} newUrl - The URL to navigate to.
+         * @returns {object} - Updated state fields.
+         */
+        function performNavigation(browser, newUrl) {
+            let newHistory = [...browser.history];
+            let newHistoryIndex = browser.historyIndex + 1;
             
-            projectData.forEach(project => {
-                const tagBadges = project.tags.map(tag => `
-                    <span class="bg-${tag.color}-600/20 text-${tag.color}-400 text-xs font-medium px-2.5 py-0.5 rounded-full">${tag.name}</span>
-                `).join('');
+            // If navigating from a point in history, clear forward history
+            newHistory = newHistory.slice(0, newHistoryIndex);
+            newHistory.push(newUrl);
 
-                const projectCard = `
-                    <div class="card-hover-effect flex flex-col md:flex-row bg-[var(--card-bg)] p-6 rounded-xl shadow-lg border border-[var(--border-color)]">
-                        <div class="md:w-3/4">
-                            <h3 class="text-2xl font-bold text-red-400 mb-2">${project.title}</h3>
-                            <p class="text-gray-400 mb-4">${project.description}</p>
-                            <div class="flex flex-wrap gap-2 mb-4">
-                                ${tagBadges}
-                            </div>
-                            <div class="flex space-x-4">
-                                <a href="${project.liveUrl}" target="_blank" class="inline-flex items-center text-red-400 hover:text-red-500 font-medium transition">
-                                    Live Demo <i data-lucide="external-link" class="w-4 h-4 ml-1"></i>
-                                </a>
-                                <a href="${project.sourceUrl}" target="_blank" class="inline-flex items-center text-gray-400 hover:text-gray-200 transition">
-                                   
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                projectsContainer.innerHTML += projectCard;
-            });
-            lucide.createIcons();
-        }
-
-        // -----------------------------------------------------
-        // 6. Testimonials Carousel (प्रशंसापत्र हिंडोला)
-        // -----------------------------------------------------
-        function initTestimonialCarousel() {
-            const track = document.getElementById('testimonial-track');
-            const prevButton = document.getElementById('prev-testimonial');
-            const nextButton = document.getElementById('next-testimonial');
-            const totalItems = track.children.length;
-            let currentIndex = 0;
-
-            function updateCarousel() {
-                const offset = -currentIndex * 100;
-                track.style.transform = `translateX(${offset}%)`;
-            }
-
-            nextButton.addEventListener('click', () => {
-                currentIndex = (currentIndex + 1) % totalItems;
-                updateCarousel();
-            });
-
-            prevButton.addEventListener('click', () => {
-                currentIndex = (currentIndex - 1 + totalItems) % totalItems;
-                updateCarousel();
-            });
-
-            // Auto-advance
-            setInterval(() => {
-                currentIndex = (currentIndex + 1) % totalItems;
-                updateCarousel();
-            }, 7000); 
-        }
-
-        // -----------------------------------------------------
-        // 7. Contact Form and Modal (संपर्क फ़ॉर्म और मॉडल)
-        // -----------------------------------------------------
-        function initContactForm() {
-            const form = document.getElementById('contact-form');
-            const modal = document.getElementById('message-modal');
-            const modalContent = document.getElementById('modal-content');
-            const modalTitle = document.getElementById('modal-title');
-            const modalBody = document.getElementById('modal-body');
-            const modalIconContainer = document.getElementById('modal-icon-container');
-            const closeModalBtn = document.getElementById('close-modal-btn');
-
-            function showModal(success) {
-                if (success) {
-                    modalTitle.textContent = "Success!";
-                    modalBody.textContent = "Your message has been sent successfully. I will get back to you shortly.";
-                    modalIconContainer.innerHTML = '<i data-lucide="check-circle" class="w-8 h-8 text-green-500"></i>';
-                } else {
-                    modalTitle.textContent = "Error!";
-                    modalBody.textContent = "There was an issue sending your message. Please try again later or contact me directly via email.";
-                    modalIconContainer.innerHTML = '<i data-lucide="alert-triangle" class="w-8 h-8 text-red-500"></i>';
-                }
-                lucide.createIcons();
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-                setTimeout(() => {
-                    modalContent.classList.remove('opacity-0', 'scale-95');
-                    modalContent.classList.add('opacity-100', 'scale-100');
-                }, 50);
-            }
-
-            function hideModal() {
-                modalContent.classList.remove('opacity-100', 'scale-100');
-                modalContent.classList.add('opacity-0', 'scale-95');
-                setTimeout(() => {
-                    modal.classList.add('hidden');
-                    modal.classList.remove('flex');
-                }, 300);
-            }
-
-            form.addEventListener('submit', async function (e) {
-                e.preventDefault();
-                const formStatus = document.createElement('p');
-                formStatus.textContent = 'Sending...';
-                formStatus.className = 'text-center text-red-400 mt-2';
-                form.appendChild(formStatus);
-
-                try {
-                    // NOTE: Replace the Formspree action URL with your own endpoint
-                    const response = await fetch(form.action, {
-                        method: form.method,
-                        body: new FormData(form),
-                        headers: {
-                            'Accept': 'application/json'
-                        }
-                    });
-
-                    if (response.ok) {
-                        form.reset();
-                        showModal(true);
-                    } else {
-                        showModal(false);
-                    }
-                } catch (error) {
-                    showModal(false);
-                } finally {
-                    formStatus.remove();
-                }
-            });
-
-            closeModalBtn.addEventListener('click', hideModal);
-        }
-
-        // -----------------------------------------------------
-        // 8. Progress Ring Intersection Observer
-        // -----------------------------------------------------
-        function initProgressRings() {
-            const circles = document.querySelectorAll('.progress-ring__circle');
-            const observerOptions = {
-                root: null,
-                rootMargin: '0px',
-                threshold: 0.8
+            return { 
+                currentUrl: newUrl, 
+                inputUrl: newUrl,
+                isLoading: true, // Always set loading to true when navigating
+                history: newHistory,
+                historyIndex: newHistoryIndex
             };
-
-            const observer = new IntersectionObserver((entries, observer) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const circle = entry.target;
-                        const offset = circle.dataset.offset;
-                        circle.style.strokeDashoffset = offset;
-                        observer.unobserve(circle);
-                    }
-                });
-            }, observerOptions);
-
-            circles.forEach(circle => {
-                // Set initial state for animation
-                circle.style.strokeDashoffset = circle.dataset.circumference;
-                observer.observe(circle);
-            });
         }
+
+        // --- Core Browser Manipulation Functions ---
         
-        // -----------------------------------------------------
-        // MAIN ENTRY POINT (मुख्य कार्य)
-        // -----------------------------------------------------
+        /**
+         * Creates a new browser object with random initial settings.
+         */
+        function createNewBrowserObject() {
+            const newId = browsers.length > 0 ? Math.max(...browsers.map(b => b.id)) + 1 : 1;
+            const randomTemplate = browserTemplates[Math.floor(Math.random() * browserTemplates.length)];
+
+            return { 
+                id: newId, 
+                ...randomTemplate, 
+                currentUrl: randomTemplate.initialUrl, 
+                inputUrl: randomTemplate.initialUrl, 
+                isLoading: true, 
+                isMaximized: false, 
+                history: [randomTemplate.initialUrl],
+                historyIndex: 0
+            };
+        }
+
+        /**
+         * Adds a new browser window (for '+' button).
+         */
+        window.addBrowser = function() {
+            browsers.push(createNewBrowserObject());
+            renderBrowsers();
+        };
+
+        /**
+         * Removes the last browser window (for '-' button).
+         */
+        window.removeBrowser = function() {
+            if (browsers.length === 0) return;
+            browsers.pop();
+            renderBrowsers();
+        };
+
+        /**
+         * Sets the browser count directly from the input field.
+         */
+        window.handleCountInput = function(event) {
+            let newCount = parseInt(event.target.value, 10);
+            const currentCount = browsers.length;
+
+            if (isNaN(newCount) || newCount < 0) {
+                newCount = 0;
+            }
+            
+            event.target.value = newCount;
+            
+            if (newCount === currentCount) return;
+
+            if (newCount > currentCount) {
+                const diff = newCount - currentCount;
+                for (let i = 0; i < diff; i++) {
+                    browsers.push(createNewBrowserObject());
+                }
+            } else if (newCount < currentCount) {
+                browsers = browsers.slice(0, newCount);
+            }
+            
+            renderBrowsers();
+        };
+
+
+        // --- Other Event Handlers ---
+
+        /**
+         * Navigates all browsers using the Global URL input.
+         */
+        window.handleGlobalNavigate = function(event) {
+            event.preventDefault();
+            const globalInput = document.getElementById('global-url-input');
+            let newUrl = globalInput.value.trim();
+
+            if (!newUrl || browsers.length === 0) {
+                if (browsers.length === 0) {
+                    console.error('No active browsers to navigate.');
+                }
+                return;
+            }
+            
+            // 1. Update state for all browsers
+            browsers = browsers.map(b => {
+                const updatedFields = performNavigation(b, newUrl);
+                return { 
+                    ...b, 
+                    ...updatedFields,
+                };
+            });
+            renderBrowsers();
+            console.log(`Global navigation attempted to: ${newUrl} for all ${browsers.length} nodes.`);
+            
+            // Since iframes handle the loading, we can stop the loading state 
+            // after a small delay to handle immediate UI updates. The iframe load 
+            // event listener (or lack thereof) will handle the rest.
+            setTimeout(() => {
+                browsers = browsers.map(b => ({ ...b, isLoading: false }));
+                renderBrowsers();
+            }, 1200);
+        };
+
+        /**
+         * Updates the temporary URL input state for individual browser navigation.
+         */
+        window.handleInputUrl = function(event, id) {
+            // Only update the input value in state, not currentUrl yet
+            updateBrowserState(id, { inputUrl: event.target.value });
+        };
+
+        /**
+         * Handles individual browser navigation submission.
+         */
+        window.handleIndividualNavigate = function(event, id) {
+            event.preventDefault();
+            const browser = getBrowserState(id);
+            if (!browser) return;
+
+            // Update history, set loading state
+            const updatedFields = performNavigation(browser, browser.inputUrl);
+            updateBrowserState(id, { 
+                ...updatedFields,
+            });
+        };
+        
+        /**
+         * Navigates forward or backward in the history.
+         */
+        window.handleHistoryNavigation = function(id, direction) {
+            const browser = getBrowserState(id);
+            if (!browser) return;
+
+            const newIndex = browser.historyIndex + direction;
+
+            if (newIndex >= 0 && newIndex < browser.history.length) {
+                const newUrl = browser.history[newIndex];
+                
+                // Update state and re-render
+                updateBrowserState(id, {
+                    currentUrl: newUrl,
+                    inputUrl: newUrl, // Also update the input field
+                    historyIndex: newIndex,
+                    isLoading: true // Start loading indicator
+                });
+
+                // Stop loading indicator after a short delay
+                setTimeout(() => {
+                     updateBrowserState(id, { isLoading: false });
+                }, 400); 
+            }
+        };
+
+        /**
+         * Simulates a browser refresh.
+         */
+        window.handleRefresh = function(id) {
+            updateBrowserState(id, { isLoading: true });
+            
+            // In a real application, you might reload the iframe here, but
+            // simply showing the loading state is sufficient for the simulation.
+            setTimeout(() => {
+                updateBrowserState(id, { isLoading: false });
+            }, 1000);
+        };
+
+        /**
+         * Toggles the maximize/minimize state of a browser window.
+         */
+        window.handleToggleMaximize = function(id) {
+            const browser = getBrowserState(id);
+            if (!browser) return;
+            updateBrowserState(id, { isMaximized: !browser.isMaximized });
+        };
+
+        /**
+         * Closes a specific browser window.
+         */
+        window.handleClose = function(id) {
+            browsers = browsers.filter(b => b.id !== id);
+            renderBrowsers();
+        };
+
+        // --- Initial Load ---
         document.addEventListener('DOMContentLoaded', () => {
-            MatrixEffect();
-            initTypingEffect();
-            initScrollReveal();
-            initSkillsGrid();
-            initProjectsGrid();
-            initTestimonialCarousel();
-            initContactForm();
-            // Wait a moment for rendering before observing rings
-            setTimeout(initProgressRings, 100); 
+            renderBrowsers();
+            
+            // Event listeners for global controls
+            document.getElementById('add-browser-btn').addEventListener('click', addBrowser);
+            document.getElementById('remove-browser-btn').addEventListener('click', removeBrowser);
+            document.getElementById('init-new-node').addEventListener('click', addBrowser);
+            
+            // Global Navigation Listener
+            document.getElementById('global-url-form').addEventListener('submit', handleGlobalNavigate);
         });
 
     </script>
