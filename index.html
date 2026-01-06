@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
+    
     <style>
         /* CSS Variables for Dynamic Theming (Dark/Light) */
         :root {
@@ -37,7 +38,6 @@
             overflow-x: hidden;
             transition: background-color 0.3s, color 0.3s; 
         }
-        
         
         /* The Canvas for the Coding Animation */
         #matrix-canvas {
@@ -154,11 +154,79 @@
             text-align: center;
         }
         #i:hover {
-            
-             scale: calc(2.1);
-             transition: all 1s;
+            scale: calc(2.1);
+            transition: all 1s;
         }
+        
        
+        
+        /* Keyframes for Continuous Floating/Breathing Animation */
+        @keyframes floating {
+            0% { transform: translateZ(0) translateY(0px) rotateX(10deg); }
+            50% { transform: translateZ(10px) translateY(-5px) rotateX(10deg); } /* Slight float up and forward */
+            100% { transform: translateZ(0) translateY(0px) rotateX(10deg); }
+        }
+
+        /* Keyframes for Subtle Y-Axis Rotation */
+        @keyframes rotateY {
+            0% { transform: rotateY(-5deg); }
+            100% { transform: rotateY(5deg); }
+        }
+
+        /* Apply combined animation to the whole model */
+        .laptop-3d-model.left {
+            animation: floating 4s ease-in-out infinite alternate, 
+                       rotateY 8s ease-in-out infinite alternate;
+        }
+
+        .laptop-3d-model.right {
+            animation: floating 4s ease-in-out infinite alternate-reverse, 
+                       rotateY 8s ease-in-out infinite alternate-reverse;
+        }
+
+        
+
+        /* Code Lines Animation */
+        @keyframes typing-code {
+            0% { width: 50%; opacity: 0.8; }
+            50% { width: 95%; opacity: 1; }
+            100% { width: 50%; opacity: 0.8; }
+        }
+        
+        .code-line {
+            height: 4px;
+            background-color: #38bdf8; /* Blue code color */
+            margin: 4px 0;
+            animation: typing-code 3s infinite alternate ease-in-out;
+        }
+        .code-line:nth-child(1) { width: 90%; }
+        .code-line:nth-child(2) { width: 70%; animation-delay: 0.2s; }
+        .code-line:nth-child(3) { width: 85%; animation-delay: 0.1s; }
+        .code-line:nth-child(4) { width: 60%; animation-delay: 0.3s; }
+        .code-line:nth-child(5) { width: 95%; animation-delay: 0.4s; }
+
+        /* Light Theme Adjustments */
+        .light-theme .laptop-base, .light-theme .laptop-screen {
+            background-color: #f3f4f6;
+            border-color: #d1d5db;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        .light-theme .laptop-inner-screen {
+            background-color: #e5e7eb;
+        }
+        .light-theme .code-line {
+            background-color: #ef4444; /* Red in light mode */
+        }
+
+        /* Media Query for smaller screens (Hide laptops on mobile) */
+        @media (max-width: 768px) {
+            .laptop-3d-model {
+                display: none !important;
+            }
+            #hero-content-wrapper {
+                gap: 0;
+            }
+        }
 
     </style>
 </head>
@@ -203,26 +271,33 @@
     <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
 
         <section id="hero" class="min-h-[80vh] flex items-center justify-center text-center scroll-reveal">
-            <div>
-                <img src="kay.png"
-                    alt="Profile Picture" style="height: 200px; width: 160px;" id="i"
-                    class="w-40 h-40 rounded-full mx-auto mb-6 border-4 border-red-500 shadow-xl ring-4 ring-red-500/50 hover:ring-8 transition duration-500 ring-pulse">
-                
-                <h1 class="text-4xl sm:text-6xl font-extrabold mb-4 leading-tight">
-                    Hi, I'm <span class="gradient-text">Kay Khan</span>
-                </h1>
-                
-                <p class="text-2xl sm:text-3xl text-gray-400 mb-8 font-light">
-                    I am a <span id="typing-text" class="font-medium text-red-400"></span>
-                </p>
+            <div id="hero-content-wrapper" class="flex flex-col md:flex-row items-center justify-center">
 
-                <a href="#contact" id="hero-contact-btn" class="inline-flex items-center bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-8 rounded-full transition duration-300 shadow-lg hover:shadow-red-500/50 transform hover:scale-105">
-                    Get In Touch
-                    <i data-lucide="mail" class="w-5 h-5 ml-2"></i>
-                </a>
+                
+
+                <div class="flex flex-col items-center">
+                    <img src="kay.png"
+                        alt="Profile Picture" style="height: 200px; width: 160px;" id="i"
+                        class="w-40 h-40 rounded-full mx-auto mb-6 border-4 border-red-500 shadow-xl ring-4 ring-red-500/50 hover:ring-8 transition duration-500 ring-pulse">
+                    
+                    <h1 class="text-4xl sm:text-6xl font-extrabold mb-4 leading-tight">
+                        Hi, I'm <span class="gradient-text">Kay Khan</span>
+                    </h1>
+                    
+                    <p class="text-2xl sm:text-3xl text-gray-400 mb-8 font-light">
+                        I am a <span id="typing-text" class="font-medium text-red-400"></span>
+                    </p>
+
+                    <a href="#contact" id="hero-contact-btn" class="inline-flex items-center bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-8 rounded-full transition duration-300 shadow-lg hover:shadow-red-500/50 transform hover:scale-105">
+                        Get In Touch
+                        <i data-lucide="mail" class="w-5 h-5 ml-2"></i>
+                    </a>
+                </div>
+
+               
+                
             </div>
         </section>
-
         <div class="h-px bg-gray-700 my-16 scroll-reveal" data-scroll-delay="0.1"></div>
 
         <section id="about" style="background: none;" class="py-16 scroll-reveal section-container p-6 md:p-10 mb-16" data-scroll-delay="0.2">
@@ -237,56 +312,7 @@
             </div>
         </section>
 
-        <section id="experience" style="background: none;" class="py-16 scroll-reveal section-container p-6 md:p-10 mb-16" data-scroll-delay="0.3">
-            <h2 class="text-3xl font-bold mb-12 gradient-text text-center">Professional Experience</h2>
-            
-            <div class="timeline" >
-                
-                <div class="timeline-item-container card-hover-effect">
-                    <div class="timeline-dot"></div>
-                    <div style="" class="bg-[var(--card-bg)] p-6 rounded-xl shadow-lg border border-[var(--border-color)]">
-                        <p class="text-sm font-light text-gray-500">2021 - Present</p>
-                        <h3 class="text-xl font-semibold text-red-400">Senior Web Architect</h3>
-                        <h4 class="text-lg font-medium text-[var(--text-color)]">Tech Innovations Inc.</h4>
-                        <p class="text-gray-400 mt-2">Led the architectural design and deployment of microservices for a multi-million user platform, resulting in a 40% reduction in latency.</p>
-                        <div class="mt-3 flex flex-wrap gap-2">
-                            <span class="bg-purple-600/20 text-purple-400 text-xs font-medium px-2.5 py-0.5 rounded-full">Microservices</span>
-                            <span class="bg-purple-600/20 text-purple-400 text-xs font-medium px-2.5 py-0.5 rounded-full">AWS</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="timeline-item-container card-hover-effect">
-                    <div class="timeline-dot"></div>
-                    <div class="bg-[var(--card-bg)] p-6 rounded-xl shadow-lg border border-[var(--border-color)]">
-                        <p class="text-sm font-light text-gray-500">2018 - 2021</p>
-                        <h3 class="text-xl font-semibold text-red-400">Full Stack Developer</h3>
-                        <h4 class="text-lg font-medium text-[var(--text-color)]">Digital Solutions Co.</h4>
-                        <p class="text-gray-400 mt-2">Developed core features for 5+ client projects using React and Node.js. Mentored junior developers on best coding practices.</p>
-                        <div class="mt-3 flex flex-wrap gap-2">
-                            <span class="bg-red-600/20 text-red-400 text-xs font-medium px-2.5 py-0.5 rounded-full">React</span>
-                            <span class="bg-red-600/20 text-red-400 text-xs font-medium px-2.5 py-0.5 rounded-full">Node.js</span>
-                            <span class="bg-red-600/20 text-red-400 text-xs font-medium px-2.5 py-0.5 rounded-full">Mentoring</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="timeline-item-container card-hover-effect">
-                    <div class="timeline-dot"></div>
-                    <div class="bg-[var(--card-bg)] p-6 rounded-xl shadow-lg border border-[var(--border-color)]">
-                        <p class="text-sm font-light text-gray-500">2016 - 2018</p>
-                        <h3 class="text-xl font-semibold text-red-400">Junior Developer Intern</h3>
-                        <h4 class="text-lg font-medium text-[var(--text-color)]">Startup Hub</h4>
-                        <p class="text-gray-400 mt-2">Assisted the team in front-end development using vanilla JavaScript and basic PHP for internal tools.</p>
-                        <div class="mt-3 flex flex-wrap gap-2">
-                            <span class="bg-green-600/20 text-green-400 text-xs font-medium px-2.5 py-0.5 rounded-full">JavaScript</span>
-                            <span class="bg-green-600/20 text-green-400 text-xs font-medium px-2.5 py-0.5 rounded-full">PHP</span>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </section>
+       
 
         <section id="skills" style="background: none;" class="py-16 scroll-reveal section-container p-6 md:p-10 mb-16" data-scroll-delay="0.4">
             <h2 class="text-3xl font-bold mb-8 gradient-text">Technical Skills</h2>
@@ -306,7 +332,7 @@
             <div style="background: none;" class="testimonial-carousel max-w-4xl mx-auto bg-[var(--card-bg)] rounded-xl shadow-xl border border-[var(--border-color)] p-6">
                 <div id="testimonial-track" class="testimonial-track">
                     
-                    <div  class="testimonial-item">
+                    <div class="testimonial-item">
                         <i data-lucide="quote" class="w-10 h-10 text-red-500 mx-auto mb-4"></i>
                         <p class="text-lg italic text-gray-300 mb-4">"Kay delivered an outstanding product, exceeding all expectations. His dedication to clean code and timely delivery is unmatched. Highly recommended for complex projects."</p>
                         <div class="font-semibold text-white">Sarah Johnson</div>
@@ -330,7 +356,7 @@
                 </div>
                 
                 <div class="flex justify-center space-x-2 mt-6">
-                    <button id="prev-testimonial"  class="p-2 bg-red-600/50 hover:bg-red-600 rounded-full transition">
+                    <button id="prev-testimonial" class="p-2 bg-red-600/50 hover:bg-red-600 rounded-full transition">
                         <i data-lucide="arrow-left" class="w-5 h-5 text-white"></i>
                     </button>
                     <button id="next-testimonial" class="p-2 bg-red-600/50 hover:bg-red-600 rounded-full transition">
@@ -340,7 +366,7 @@
             </div>
         </section>
 
-        <section id="cta"  class="py-16 scroll-reveal section-container p-6 md:p-12 mb-16 text-center bg-red-900/20 border-red-600/50" data-scroll-delay="0.7">
+        <section id="cta" class="py-16 scroll-reveal section-container p-6 md:p-12 mb-16 text-center bg-red-900/20 border-red-600/50" data-scroll-delay="0.7">
             <h2 class="text-4xl font-extrabold mb-4 text-white">Ready to Start a Project?</h2>
             <p class="text-xl text-red-200 mb-8">
                 Send me a direct message to discuss your requirements.
@@ -369,8 +395,8 @@
 
             <form id="contact-form" action="https://formspree.io/f/xyzrppad" method="POST" class="max-w-xl mx-auto space-y-6">
                 <div>
-                    <label for="name"  class="block text-sm font-medium mb-2 text-gray-300">Your Name</label>
-                    <input type="text"  id="name" name="name" required class="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 focus:border-red-500 focus:ring-red-500 outline-none" placeholder="Enter your name">
+                    <label for="name" class="block text-sm font-medium mb-2 text-gray-300">Your Name</label>
+                    <input type="text" id="name" name="name" required class="w-full p-3 rounded-lg bg-gray-800 border border-gray-700 focus:border-red-500 focus:ring-red-500 outline-none" placeholder="Enter your name">
                 </div>
                 <div>
                     <label for="email" class="block text-sm font-medium mb-2 text-gray-300">Your Email</label>
@@ -416,10 +442,10 @@
         // -----------------------------------------------------
         const projectData = [
             {
-                title: "Decentralized Voting System",
-                description: "A secure, blockchain-based platform ensuring transparent and tamper-proof elections. Built with Solidity and React.",
-                tags: [{ name: "Blockchain", color: "purple" }, { name: "React", color: "red" }, { name: "Solidity", color: "green" }],
-                liveUrl: "#",
+                title: "Gaming Hub",
+                description: "A sleek, high-performance gaming portal featuring an immersive dark-theme UI and seamless responsiveness. Built with React and Tailwind CSS.",
+                tags: [{ name: "Games", color: "purple" }, { name: "React", color: "red" }, { name: "Solidity", color: "green" }],
+                liveUrl: "https://crazy20.netlify.app/",
                 sourceUrl: "#"
             },
             {
@@ -619,90 +645,70 @@
                 const offset = circumference - (skill.value / 100) * circumference;
                 
                 const skillCard = `
-                    <div class="flex flex-col items-center p-4 bg-[var(--card-bg)] rounded-xl border border-[var(--border-color)] card-hover-effect">
-                        <div class="relative w-24 h-24 mb-3">
-                            <svg class="w-full h-full transform -rotate-90">
-                                <circle class="text-gray-700 stroke-current" stroke-width="6" fill="transparent"
-                                    r="${radius}" cx="50%" cy="50%" stroke-dasharray="${circumference}" stroke-dashoffset="0"></circle>
-                                <circle class="progress-ring__circle stroke-current" stroke-width="6" fill="transparent"
-                                    r="${radius}" cx="50%" cy="50%" stroke-dasharray="${circumference}" style="stroke-dashoffset: ${circumference}; stroke: ${skill.color};"
-                                    data-value="${skill.value}" data-offset="${offset}"></circle>
+                    <div class="card-hover-effect bg-[var(--card-bg)] p-6 rounded-xl shadow-lg border border-[var(--border-color)] text-center">
+                        <div class="relative w-24 h-24 mx-auto mb-4">
+                            <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                                <circle class="text-gray-700" stroke-width="8" stroke="currentColor" fill="transparent" r="${radius}" cx="50" cy="50" />
+                                <circle class="progress-ring__circle" stroke-width="8" stroke="${skill.color}" fill="transparent" r="${radius}" cx="50" cy="50"
+                                    style="stroke-dasharray: ${circumference}; stroke-dashoffset: ${circumference};"
+                                    data-offset="${offset}"
+                                    data-circumference="${circumference}"
+                                    data-skill-value="${skill.value}"
+                                />
                             </svg>
-                            <span class="absolute inset-0 flex items-center justify-center text-lg font-bold text-white" id="${skill.id}-value">${skill.value}%</span>
+                            <span class="absolute inset-0 flex items-center justify-center text-xl font-bold text-red-400">${skill.value}%</span>
                         </div>
-                        <p class="text-sm font-medium text-center text-red-400">${skill.name}</p>
+                        <h4 class="text-lg font-semibold text-[var(--text-color)]">${skill.name}</h4>
                     </div>
                 `;
                 skillsGrid.innerHTML += skillCard;
             });
-
-            // Animate circles on scroll
-            const skillSection = document.getElementById('skills');
-            const skillObserver = new IntersectionObserver((entries, observer) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        document.querySelectorAll('.progress-ring__circle').forEach(circle => {
-                            const offset = circle.dataset.offset;
-                            circle.style.strokeDashoffset = offset;
-                        });
-                        observer.unobserve(skillSection);
-                    }
-                });
-            }, { threshold: 0.3 });
-
-            skillObserver.observe(skillSection);
         }
-
+        
         // -----------------------------------------------------
         // 5. Projects Grid (परियोजना ग्रिड)
         // -----------------------------------------------------
         function initProjectsGrid() {
             const projectsContainer = document.getElementById('projects-container');
-
+            
             projectData.forEach(project => {
-                const tagsHtml = project.tags.map(tag => {
-                    let colorClass = '';
-                    switch (tag.color) {
-                        case 'red': colorClass = 'bg-red-600/20 text-red-400'; break;
-                        case 'purple': colorClass = 'bg-purple-600/20 text-purple-400'; break;
-                        case 'green': colorClass = 'bg-green-600/20 text-green-400'; break;
-                        case 'yellow': colorClass = 'bg-yellow-600/20 text-yellow-400'; break;
-                        case 'cyan': colorClass = 'bg-cyan-600/20 text-cyan-400'; break;
-                    }
-                    return `<span class="${colorClass} text-xs font-medium px-2.5 py-0.5 rounded-full">${tag.name}</span>`;
-                }).join('');
+                const tagBadges = project.tags.map(tag => `
+                    <span class="bg-${tag.color}-600/20 text-${tag.color}-400 text-xs font-medium px-2.5 py-0.5 rounded-full">${tag.name}</span>
+                `).join('');
 
                 const projectCard = `
-                    <div class="bg-[var(--card-bg)] p-6 rounded-xl shadow-lg border border-[var(--border-color)] card-hover-effect">
-                        <h3 class="text-2xl font-bold mb-2 text-red-400">${project.title}</h3>
-                        <p class="text-gray-400 mb-4">${project.description}</p>
-                        <div class="flex flex-wrap gap-2 mb-4">
-                            ${tagsHtml}
-                        </div>
-                        <div class="flex space-x-4">
-                            <a href="${project.liveUrl}" target="_blank" class="text-sm font-semibold text-white hover:text-red-400 transition flex items-center">
-                                Live Demo <i data-lucide="external-link" class="w-4 h-4 ml-1"></i>
-                            </a>
-                            <a href="${project.sourceUrl}" target="_blank" class="text-sm font-semibold text-white hover:text-red-400 transition flex items-center">
-                                Source Code <i data-lucide="github" class="w-4 h-4 ml-1"></i>
-                            </a>
+                    <div class="card-hover-effect flex flex-col md:flex-row bg-[var(--card-bg)] p-6 rounded-xl shadow-lg border border-[var(--border-color)]">
+                        <div class="md:w-3/4">
+                            <h3 class="text-2xl font-bold text-red-400 mb-2">${project.title}</h3>
+                            <p class="text-gray-400 mb-4">${project.description}</p>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                ${tagBadges}
+                            </div>
+                            <div class="flex space-x-4">
+                                <a href="${project.liveUrl}" target="_blank" class="inline-flex items-center text-red-400 hover:text-red-500 font-medium transition">
+                                    Live Demo <i data-lucide="external-link" class="w-4 h-4 ml-1"></i>
+                                </a>
+                                <a href="${project.sourceUrl}" target="_blank" class="inline-flex items-center text-gray-400 hover:text-gray-200 transition">
+                                   
+                                </a>
+                            </div>
                         </div>
                     </div>
                 `;
                 projectsContainer.innerHTML += projectCard;
             });
+            lucide.createIcons();
         }
 
         // -----------------------------------------------------
-        // 6. Testimonial Carousel (फीडबैक कैरोसेल)
+        // 6. Testimonials Carousel (प्रशंसापत्र हिंडोला)
         // -----------------------------------------------------
         function initTestimonialCarousel() {
             const track = document.getElementById('testimonial-track');
             const prevButton = document.getElementById('prev-testimonial');
             const nextButton = document.getElementById('next-testimonial');
-            const items = document.querySelectorAll('.testimonial-item');
+            const totalItems = track.children.length;
             let currentIndex = 0;
-            const totalItems = items.length;
 
             function updateCarousel() {
                 const offset = -currentIndex * 100;
@@ -719,108 +725,129 @@
                 updateCarousel();
             });
 
-            // Auto-advance the carousel
+            // Auto-advance
             setInterval(() => {
                 currentIndex = (currentIndex + 1) % totalItems;
                 updateCarousel();
-            }, 7000); // Change every 7 seconds
+            }, 7000); 
         }
 
         // -----------------------------------------------------
-        // 11. Contact Form Logic (फॉर्म लॉजिक) -- Fixed for Formspree
+        // 7. Contact Form and Modal (संपर्क फ़ॉर्म और मॉडल)
         // -----------------------------------------------------
-        const contactForm = document.getElementById('contact-form');
-        const modal = document.getElementById('message-modal');
-        const modalTitle = document.getElementById('modal-title');
-        const modalBody = document.getElementById('modal-body');
-        const modalIconContainer = document.getElementById('modal-icon-container');
-        const closeModalBtn = document.getElementById('close-modal-btn');
-        const modalContent = document.getElementById('modal-content');
+        function initContactForm() {
+            const form = document.getElementById('contact-form');
+            const modal = document.getElementById('message-modal');
+            const modalContent = document.getElementById('modal-content');
+            const modalTitle = document.getElementById('modal-title');
+            const modalBody = document.getElementById('modal-body');
+            const modalIconContainer = document.getElementById('modal-icon-container');
+            const closeModalBtn = document.getElementById('close-modal-btn');
 
-        function showModal(success, message) {
-            if (success) {
-                modalIconContainer.innerHTML = '<i data-lucide="check-circle" class="w-10 h-10 text-green-500"></i>';
-                modalIconContainer.classList.add('bg-green-500/10');
-                modalTitle.textContent = "Message Sent Successfully!";
-            } else {
-                modalIconContainer.innerHTML = '<i data-lucide="alert-triangle" class="w-10 h-10 text-red-500"></i>';
-                modalIconContainer.classList.add('bg-red-500/10');
-                modalTitle.textContent = "Error Sending Message";
+            function showModal(success) {
+                if (success) {
+                    modalTitle.textContent = "Success!";
+                    modalBody.textContent = "Your message has been sent successfully. I will get back to you shortly.";
+                    modalIconContainer.innerHTML = '<i data-lucide="check-circle" class="w-8 h-8 text-green-500"></i>';
+                } else {
+                    modalTitle.textContent = "Error!";
+                    modalBody.textContent = "There was an issue sending your message. Please try again later or contact me directly via email.";
+                    modalIconContainer.innerHTML = '<i data-lucide="alert-triangle" class="w-8 h-8 text-red-500"></i>';
+                }
+                lucide.createIcons();
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                setTimeout(() => {
+                    modalContent.classList.remove('opacity-0', 'scale-95');
+                    modalContent.classList.add('opacity-100', 'scale-100');
+                }, 50);
             }
-            modalBody.textContent = message;
-            
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            setTimeout(() => {
-                modalContent.classList.remove('scale-95', 'opacity-0');
-                modalContent.classList.add('scale-100', 'opacity-100');
-                lucide.createIcons(); 
-            }, 10);
+
+            function hideModal() {
+                modalContent.classList.remove('opacity-100', 'scale-100');
+                modalContent.classList.add('opacity-0', 'scale-95');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }, 300);
+            }
+
+            form.addEventListener('submit', async function (e) {
+                e.preventDefault();
+                const formStatus = document.createElement('p');
+                formStatus.textContent = 'Sending...';
+                formStatus.className = 'text-center text-red-400 mt-2';
+                form.appendChild(formStatus);
+
+                try {
+                    // NOTE: Replace the Formspree action URL with your own endpoint
+                    const response = await fetch(form.action, {
+                        method: form.method,
+                        body: new FormData(form),
+                        headers: {
+                            'Accept': 'application/json'
+                        }
+                    });
+
+                    if (response.ok) {
+                        form.reset();
+                        showModal(true);
+                    } else {
+                        showModal(false);
+                    }
+                } catch (error) {
+                    showModal(false);
+                } finally {
+                    formStatus.remove();
+                }
+            });
+
+            closeModalBtn.addEventListener('click', hideModal);
         }
 
-        function closeModal() {
-            modalContent.classList.remove('scale-100', 'opacity-100');
-            modalContent.classList.add('scale-95', 'opacity-0');
-            setTimeout(() => {
-                modal.classList.remove('flex');
-                modal.classList.add('hidden');
-            }, 300);
-        }
-        closeModalBtn.addEventListener('click', closeModal);
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                closeModal();
-            }
-        });
+        // -----------------------------------------------------
+        // 8. Progress Ring Intersection Observer
+        // -----------------------------------------------------
+        function initProgressRings() {
+            const circles = document.querySelectorAll('.progress-ring__circle');
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px',
+                threshold: 0.8
+            };
 
-        contactForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const formAction = this.getAttribute('action');
-            // CHECK 1: Ensure the user replaced the placeholder
-            if (!formAction || formAction.includes('YOUR_FORMSPREE_ENDPOINT')) {
-                showModal(false, "Please replace 'YOUR_FORMSPREE_ENDPOINT' in the HTML form with your actual Formspree link.");
-                return;
-            }
-
-            try {
-                const response = await fetch(formAction, {
-                    method: 'POST',
-                    body: new FormData(this),
-                    headers: {
-                        'Accept': 'application/json'
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const circle = entry.target;
+                        const offset = circle.dataset.offset;
+                        circle.style.strokeDashoffset = offset;
+                        observer.unobserve(circle);
                     }
                 });
+            }, observerOptions);
 
-                if (response.ok) {
-                    showModal(true, "Your message has been received! I'll get back to you shortly.");
-                    contactForm.reset(); 
-                } else {
-                    const data = await response.json();
-                    const errorMessage = data.error || "An unknown error occurred. Did you verify your email?";
-                    showModal(false, errorMessage);
-                }
-            } catch (error) {
-                showModal(false, "A network error occurred. Please check your connection.");
-            }
+            circles.forEach(circle => {
+                // Set initial state for animation
+                circle.style.strokeDashoffset = circle.dataset.circumference;
+                observer.observe(circle);
+            });
+        }
+        
+        // -----------------------------------------------------
+        // MAIN ENTRY POINT (मुख्य कार्य)
+        // -----------------------------------------------------
+        document.addEventListener('DOMContentLoaded', () => {
+            MatrixEffect();
+            initTypingEffect();
+            initScrollReveal();
+            initSkillsGrid();
+            initProjectsGrid();
+            initTestimonialCarousel();
+            initContactForm();
+            // Wait a moment for rendering before observing rings
+            setTimeout(initProgressRings, 100); 
         });
-
-
-        // -----------------------------------------------------
-        // Final Initialization (फाइल लोड होने पर सब शुरू करें)
-        // -----------------------------------------------------
-        window.onload = function() {
-            // Wait for all elements to load before starting animation
-            MatrixEffect(); 
-            // Call other initialization logic:
-            initTypingEffect(); 
-            initSkillsGrid(); 
-            initProjectsGrid(); 
-            initScrollReveal(); 
-            initTestimonialCarousel(); 
-            // Lucide Icons को आखिर में फिर से क्रिएट करें
-            lucide.createIcons();
-        };
 
     </script>
 </body>
